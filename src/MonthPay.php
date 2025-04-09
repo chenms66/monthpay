@@ -10,11 +10,11 @@ class MonthPay
 {
     private  $gateway;
 
-    public function __construct(string $channel, array $config, string $logPath)
+    public function __construct(string $channel, array $config, $logPath = '')
     {
         switch ($channel ?? '') {
             case 'wechat':
-                $this->gateway = new WechatGateway($config ?? [],$logPath ?? '');
+                $this->gateway = new WechatGateway($config ?? [],$logPath);
                 break;
             default:
                 throw new MonthPayException("渠道不存在");

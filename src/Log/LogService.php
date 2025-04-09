@@ -8,10 +8,10 @@ class LogService
     private $logDir;
     private $fileName;
 
-    public function __construct(string $channel = 'default', string $logPath = null)
+    public function __construct(string $channel = 'default', $logPath = '')
     {
         $this->channel = $channel;
-        $this->logDir = $logPath ?? dirname(__DIR__, 2) . '/logs';
+        $this->logDir =   !empty($logPath) ? $logPath :'./log';
         $this->fileName = date('Y-m-d').'.txt';
 
         if (!is_dir($this->logDir)) {
