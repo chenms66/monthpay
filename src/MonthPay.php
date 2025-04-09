@@ -46,7 +46,7 @@ class MonthPay
      * @throws MonthPayException
      * 微信内置签约
      */
-    public function wxSign(array $params): bool|string
+    public function wxSign(array $params)
     {
         try {
             // 校验必填字段
@@ -64,7 +64,7 @@ class MonthPay
      * @throws MonthPayException
      * 微信预扣款
      */
-    public function preDeduct(array $params): bool|string
+    public function preDeduct(array $params)
     {
         try {
             // 校验必填字段
@@ -82,7 +82,7 @@ class MonthPay
      * @throws MonthPayException
      * 微信预扣款
      */
-    public function deductMoney(array $params): bool|string
+    public function deductMoney(array $params)
     {
         try {
             // 校验必填字段
