@@ -4,9 +4,8 @@
     "type": "library",
     "require": {
         "php": ">=7.0",
-        "monolog/monolog": "2.x-dev",
-        "vlucas/phpdotenv": "^5.6@dev",
-        "baige/monthpay": "1.0.0"
+        "monolog/monolog": "^2.0",
+        "vlucas/phpdotenv": "^5.6"
     },
     "autoload": {
         "psr-4": {
