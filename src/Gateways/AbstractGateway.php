@@ -27,5 +27,5 @@ abstract class AbstractGateway
 
     abstract public function h5Sign(array $params);
     abstract public function wxSign(array $params);
-    abstract public function preDeduct(array $params);
+    abstract public function deductMoney(array $params);
 }

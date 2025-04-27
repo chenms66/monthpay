@@ -2,8 +2,10 @@
 
 namespace BaiGe\MonthPay\Gateways\V1;
 
+use BaiGe\MonthPay\Exceptions\MonthPayException;
 use BaiGe\MonthPay\Gateways\AbstractGateway;
 use BaiGe\MonthPay\Support\HttpClient;
+use BaiGe\MonthPay\Validator\Validator;
 
 class WechatGateway extends AbstractGateway
 {
@@ -21,6 +23,7 @@ class WechatGateway extends AbstractGateway
         parent::__construct('wechat', $config, $logPath);
         $this->httpClient = new HttpClient($this->config);
     }
+
     /**
      * @param $params
      * @return array
@@ -60,6 +63,7 @@ class WechatGateway extends AbstractGateway
      */
     public function h5Sign(array $params)
     {
+        Validator::validateRequiredFields($params, ['out_contract_code','b_name','s_time','e_time','renewal_status','withhold_log','plan_id','openid']);
         $params = $this->commParam($params);
         $this->logRequest('h5Sign', $params);
         $response = $this->httpClient->post(self::URL_H5_SIGN,$params);
@@ -74,6 +78,7 @@ class WechatGateway extends AbstractGateway
      */
     public function wxSign(array $params)
     {
+        Validator::validateRequiredFields($params, ['out_contract_code','b_name','s_time','e_time','renewal_status','withhold_log','plan_id','openid']);
         $params = $this->commParam($params,true);
         $this->logRequest('wxSign', $params);
         $response = $this->httpClient->post(self::URL_WX_SIGN,$params);
@@ -87,6 +92,7 @@ class WechatGateway extends AbstractGateway
      * 微信预扣款
      */
     public function preDeduct(array $params){
+        Validator::validateRequiredFields($params, ['expect_money','agreement_no','period']);
         $data = [
             'appid'=>$this->config['appid'],
             'scheduled_amount'=>[
@@ -107,6 +113,7 @@ class WechatGateway extends AbstractGateway
      * 微信执行扣款
      */
     public function deductMoney(array $params){
+        Validator::validateRequiredFields($params, ['out_trade_no','agreement_no','period','expect_money']);
         $data = [
             'appid'=>$this->config['appid'],
             'out_trade_no'=>$params['out_trade_no'],
@@ -120,8 +127,22 @@ class WechatGateway extends AbstractGateway
         ];
         $this->logRequest('deductMoney', $data);
         $return_info = $this->httpClient->post(self::URL_DEDUCT_MONEY, $data);
-        $this->logResponse('preDeduct', $return_info);
+        $this->logResponse('deductMoney', $return_info);
         return $return_info;
+    }
+
+    /**
+     * @param $param array 请求参数
+     * @param $url string 请求地址
+     * @param $action string 请求方法
+     * @return mixed
+     * 公共请求
+     */
+    public function publicRequest(array $param, string $url, string $action){
+        $this->logRequest($action, $param);
+        $return_info = $this->httpClient->post($url, $param);
+        $this->logResponse($action, $return_info);
+        return json_decode($return_info, true);
     }
 
     private function maskInsuredName($name)

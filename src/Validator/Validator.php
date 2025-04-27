@@ -16,10 +16,15 @@ class Validator
     public static function validateRequiredFields(array $data, array $requiredFields)
     {
         foreach ($requiredFields as $field) {
-            if (empty($data[$field])) {
+            if (self::isEmpty($data[$field])) {
                 throw new MonthPayException("字段 '{$field}' 不能为空");
             }
         }
+    }
+
+    public static function isEmpty($value): bool
+    {
+        return $value === null || $value === '';
     }
 
 }
