@@ -40,7 +40,7 @@ class BankGateway extends AbstractGateway
      */
     public function deductMoney(array $params)
     {
-        Validator::validateRequiredFields($params, ['num_id','txn_type','period_enable','period','policy_money']);
+        Validator::validateRequiredFields($params, ['num_id','txn_type','policy_money','binding_no']);
         $data = [
             'clientOrderId' => $params['num_id'],//商户订单号
             'txnType' => $params['txn_type'],//业务类型
@@ -48,13 +48,10 @@ class BankGateway extends AbstractGateway
             'tradeType' => 'BANK_H5',//支付方式
             'body' => $params['body'] ?? '',//商品描述
             'remark' => $params['remark'] ?? '',//备注
-            'periodEnable' => $params['period_enable'],//是否分期 true/false
-            'periodAmount' => $params['period'],//分期期数
-            'mobile' => $params['mobile'] ?? '',//云闪付登录账号
             'expireTime' => $params['expire_time'] ?? '',//超时时间 单位分钟
             'transAmount' => $params['policy_money'],//交易金额 分
             'channelCode' => $this->config['channel_code'],//交易渠道
-            'clientNotifyUrl' => $this->config['client_notify_url'],//异步回调通知地址
+            'clientNotifyUrl' => $this->config['client_notify_pay_url'],//异步回调通知地址
             'frontNotifyUrl' => $this->config['front_notify_url'],//绑卡完成同步请求地址
             'merchantCode' => $this->config['merchant_code'],//商户号
             'attach' => $params['attach'] ?? '',//附加参数
@@ -134,9 +131,9 @@ class BankGateway extends AbstractGateway
      */
     public function commonRefund(array $param)
     {
-        Validator::validateRequiredFields($param, ['num_id','refund_amount']);
+        Validator::validateRequiredFields($param, ['server_order_id','refund_amount']);
         $data = [
-            'serverOrderId' => $param['num_id'],//平台订单号
+            'serverOrderId' => $param['server_order_id'],//平台订单号
             'clientLedgerOrderId' => $params['client_ledger_order_id'] ?? '',//商户分账订单号
             'ledgerOrderId' => $params['ledger_order_id'] ?? '',//平台分账订单号
             'refundAmount' => $param['refund_amount'],//退款金额
