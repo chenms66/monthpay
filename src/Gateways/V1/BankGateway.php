@@ -137,7 +137,7 @@ class BankGateway extends AbstractGateway
             'clientLedgerOrderId' => $params['client_ledger_order_id'] ?? '',//商户分账订单号
             'ledgerOrderId' => $params['ledger_order_id'] ?? '',//平台分账订单号
             'refundAmount' => $param['refund_amount'],//退款金额
-            'clientNotifyUrl' => $this->config['client_notify_url'],//异步回调通知地址
+            'clientNotifyUrl' => $this->config['client_notify_refund_url'],//异步回调通知地址
             'ledgerRelation' => $param['ledger_relation'] ?? '',//分账交易关系组
         ];
         return $this->publicRequest($data, $this->config['refund_url'], 'commonRefund');
