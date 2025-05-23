@@ -64,7 +64,7 @@ class WechatGateway extends AbstractGateway
      */
     public function h5Sign(array $params)
     {
-        Validator::validateRequiredFields($params, ['out_contract_code','b_name','s_time','e_time','renewal_status','withhold_log','plan_id','openid']);
+        Validator::validateRequiredFields($params, ['out_contract_code','b_name','s_time','e_time','renewal_status','withhold_log','plan_id']);
         $params = $this->commParam($params);
         $this->logRequest('h5Sign', $params);
         $response = $this->httpClient->post(self::URL_H5_SIGN,$params);
