@@ -43,7 +43,7 @@ class WechatGateway extends AbstractGateway
             'plan_id'=>(int)$params['plan_id'],
             'contract_notify_url'=>$this->config['notify_url'],
             'transaction_notify_url'=>$this->config['callback'],
-            'appid'=>$this->config['appid']
+            'appid'=>$this->config['app_id']
         ];
         if(isset($params['out_trade_no']) && !empty($params['out_trade_no'])){
             $data['out_trade_no'] = (string)$params['out_trade_no'];////【商户订单号】 若商户希望在进行签约后立即进行首期自动续费，必须传入商户系统内部订单号。只能是数字、大小写字母_-*且在同一个商户号下唯一
@@ -110,7 +110,7 @@ class WechatGateway extends AbstractGateway
     public function preDeduct(array $params){
         Validator::validateRequiredFields($params, ['expect_money','agreement_no','period']);
         $data = [
-            'appid'=>$this->config['appid'],
+            'appid'=>$this->config['app_id'],
             'scheduled_amount'=>[
                 'total'=>$this->yuanToCent($params['expect_money']),
             ]
@@ -131,7 +131,7 @@ class WechatGateway extends AbstractGateway
     public function deductMoney(array $params){
         Validator::validateRequiredFields($params, ['out_trade_no','agreement_no','period','expect_money']);
         $data = [
-            'appid'=>$this->config['appid'],
+            'appid'=>$this->config['app_id'],
             'out_trade_no'=>$params['out_trade_no'],
             'description'=>'保险扣款',
             'transaction_notify_url'=>$this->config['callback'],
