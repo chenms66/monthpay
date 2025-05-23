@@ -12,6 +12,7 @@ class WechatGateway extends AbstractGateway
 
     const URL_H5_SIGN             = 'https://api.mch.weixin.qq.com/v3/papay/insurance-sign/contracts/pre-entrust-sign/h5';//h5签约地址
     const URL_WX_SIGN             = 'https://api.mch.weixin.qq.com/v3/papay/insurance-sign/contracts/pre-entrust-sign/jsapi';//微信签约地址
+    const URL_MINI_SIGN           = 'https://api.mch.weixin.qq.com/v3/papay/insurance-sign/contracts/pre-entrust-sign/mini-program';//微信小程序
     const URL_SIGN_LIST           = 'https://api.mch.weixin.qq.com/v3/papay/insurance-sign/policy_periods/plan-id/';////保险商户查询保险扣费周期列表API
     const URL_RELIEVE_APPOINT     = 'https://api.mch.weixin.qq.com/v3/papay/insurance-sign/contracts/plan-id/';//解约地址
     const URL_WITHHOLDING         = 'https://api.mch.weixin.qq.com/v3/papay/insurance-pay/policy-periods/contract-id/';////预扣款
@@ -83,6 +84,21 @@ class WechatGateway extends AbstractGateway
         $this->logRequest('wxSign', $params);
         $response = $this->httpClient->post(self::URL_WX_SIGN,$params);
         $this->logResponse('wxSign', $response);
+        return json_decode($response, true);
+    }
+
+    /**
+     * @param array $params
+     * @return bool|string
+     * 微信小程序签约
+     */
+    public function wxMini(array $params)
+    {
+        Validator::validateRequiredFields($params, ['out_contract_code','b_name','s_time','e_time','renewal_status','withhold_log','plan_id','openid']);
+        $params = $this->commParam($params,true);
+        $this->logRequest('wxMini', $params);
+        $response = $this->httpClient->post(self::URL_MINI_SIGN,$params);
+        $this->logResponse('wxMini', $response);
         return json_decode($response, true);
     }
 
