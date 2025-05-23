@@ -64,7 +64,7 @@ class WechatGateway extends AbstractGateway
      */
     public function h5Sign(array $params)
     {
-        Validator::validateRequiredFields($params, ['out_contract_code','b_name','s_time','e_time','renewal_status','withhold_log','plan_id']);
+        Validator::validateRequiredFields($params, ['out_contract_code','out_user_code','b_name','s_time','e_time','renewal_status','withhold_log','plan_id']);
         $params = $this->commParam($params);
         $this->logRequest('h5Sign', $params);
         $response = $this->httpClient->post(self::URL_H5_SIGN,$params);
@@ -79,7 +79,7 @@ class WechatGateway extends AbstractGateway
      */
     public function wxSign(array $params)
     {
-        Validator::validateRequiredFields($params, ['out_contract_code','b_name','s_time','e_time','renewal_status','withhold_log','plan_id','openid']);
+        Validator::validateRequiredFields($params, ['out_contract_code','out_user_code','b_name','s_time','e_time','renewal_status','withhold_log','plan_id','openid']);
         $params = $this->commParam($params,true);
         $this->logRequest('wxSign', $params);
         $response = $this->httpClient->post(self::URL_WX_SIGN,$params);
@@ -94,7 +94,7 @@ class WechatGateway extends AbstractGateway
      */
     public function wxMini(array $params)
     {
-        Validator::validateRequiredFields($params, ['out_contract_code','b_name','s_time','e_time','renewal_status','withhold_log','plan_id','openid']);
+        Validator::validateRequiredFields($params, ['out_contract_code','out_user_code','b_name','s_time','e_time','renewal_status','withhold_log','plan_id','openid']);
         $params = $this->commParam($params,true);
         $this->logRequest('wxMini', $params);
         $response = $this->httpClient->post(self::URL_MINI_SIGN,$params);
