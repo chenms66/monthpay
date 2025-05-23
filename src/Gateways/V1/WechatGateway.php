@@ -174,13 +174,14 @@ class WechatGateway extends AbstractGateway
     /**
      * @param $plan_id int
      * @param $out_contract_code string
+     * @param $remark string
      * @return bool|string
      * 解约
      */
-    public function relieveAppoint(int $plan_id,string $out_contract_code){
+    public function relieveAppoint(int $plan_id,string $out_contract_code,string $remark = '用户解约'){
         $url = self::URL_RELIEVE_APPOINT.$plan_id.'/out-contract-code/'.$out_contract_code.'/terminate';
         $this->logRequest('解约relieveAppoint', [$url]);
-        $return_info = $this->httpClient->post($url, ['contract_termination_remark'=>'用户解约']);
+        $return_info = $this->httpClient->post($url, ['contract_termination_remark'=>$remark]);
         $this->logResponse('relieveAppoint', $return_info);
         return $return_info;
     }
