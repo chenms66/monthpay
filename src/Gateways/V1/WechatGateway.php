@@ -41,8 +41,8 @@ class WechatGateway extends AbstractGateway
             'description'=>'保险商品代扣',//【商品描述】 若商户希望在进行签约后立即进行首期自动续费，必须传入商品描述。
             'can_auto_reinsure'=> $params['renewal_status'],//【是否自动重新投保】 指扣费计划到期后，商家按照最新费率为用户重新投保，不保证投保成功，投保成功后将生成新的保单号。是否自动续保与是否自动重新投保不能同时设置。
             'plan_id'=>(int)$params['plan_id'],
-            'contract_notify_url'=>$this->config['notify_url'],
-            'transaction_notify_url'=>$this->config['callback'],
+            'contract_notify_url'=>$this->config['sign_v3_notify_url'],
+            'transaction_notify_url'=>$this->config['v3_wx_callback'],
             'appid'=>$this->config['app_id']
         ];
         if(isset($params['out_trade_no']) && !empty($params['out_trade_no'])){
