@@ -9,7 +9,7 @@ use BaiGe\MonthPay\Validator\Validator;
 
 class MonthPay
 {
-    private  $gateway;
+    public $gateway;
 
     public function __construct(string $channel, array $config, $logPath = '')
     {
