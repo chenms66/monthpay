@@ -4,6 +4,7 @@ namespace BaiGe\MonthPay;
 
 use BaiGe\MonthPay\Exceptions\MonthPayException;
 use BaiGe\MonthPay\Gateways\V1\BankGateway;
+use BaiGe\MonthPay\Gateways\V1\DxmGateway;
 use BaiGe\MonthPay\Gateways\V1\WechatGateway;
 use BaiGe\MonthPay\Validator\Validator;
 
@@ -19,6 +20,9 @@ class MonthPay
                 break;
             case 'bank':
                 $this->gateway = new BankGateway($config ?? [],$logPath);
+                break;
+            case 'dxm':
+                $this->gateway = new DxmGateway($config ?? [],$logPath);
                 break;
             default:
                 throw new MonthPayException("渠道不存在");

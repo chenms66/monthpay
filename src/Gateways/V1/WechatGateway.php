@@ -5,6 +5,7 @@ namespace BaiGe\MonthPay\Gateways\V1;
 use BaiGe\MonthPay\Exceptions\MonthPayException;
 use BaiGe\MonthPay\Gateways\AbstractGateway;
 use BaiGe\MonthPay\Support\HttpClient;
+use BaiGe\MonthPay\Support\Utils;
 use BaiGe\MonthPay\Validator\Validator;
 
 class WechatGateway extends AbstractGateway
@@ -49,7 +50,7 @@ class WechatGateway extends AbstractGateway
             $data['out_trade_no'] = (string)$params['out_trade_no'];////【商户订单号】 若商户希望在进行签约后立即进行首期自动续费，必须传入商户系统内部订单号。只能是数字、大小写字母_-*且在同一个商户号下唯一
         }
         if(isset($params['expect_money']) && !empty($params['expect_money'])){////【扣费金额信息】 若商户希望在进行签约后立即进行首期自动续费，必须传入扣费金额信息，必须等于首个扣费周期的的预约金额。
-            $data['amount']['total'] = $this->yuanToCent($params['expect_money']);
+            $data['amount']['total'] = Utils::yuanToCent($params['expect_money']);
         }
         if($is_wx){
             $data['openid'] = $params['openid'];
@@ -112,7 +113,7 @@ class WechatGateway extends AbstractGateway
         $data = [
             'appid'=>$this->config['app_id'],
             'scheduled_amount'=>[
-                'total'=>$this->yuanToCent($params['expect_money']),
+                'total'=>Utils::yuanToCent($params['expect_money']),
             ]
         ];
         $url = self::URL_WITHHOLDING.$params['agreement_no'].'/policy-period-id/'.$params['period'].'/schedule';
@@ -138,7 +139,7 @@ class WechatGateway extends AbstractGateway
             'contract_id'=>$params['agreement_no'],
             'policy_period_id'=>$params['period'],
             'amount'=>[
-                'total'=>$this->yuanToCent($params['expect_money']),
+                'total'=>Utils::yuanToCent($params['expect_money']),
             ]
         ];
         $this->logRequest('deductMoney', $data);
@@ -166,10 +167,7 @@ class WechatGateway extends AbstractGateway
         return '***' . mb_substr($name, -1, 1);
     }
 
-    private function yuanToCent($amount)
-    {
-        return (int) bcmul($amount, 100);
-    }
+
 
     /**
      * @param $plan_id int
