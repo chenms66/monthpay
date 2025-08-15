@@ -15,8 +15,8 @@ class Tests extends TestCase{
             'cancel_url' => 'https://qatest.dxmpay.com/cashdesk/service/easypayapi/cancelcontract',//绑定解除
             'query_sign_url' => 'https://qatest.dxmpay.com/cashdesk/service/easypayapi/querybeforepay',//签约查询
             'refund_url' => 'https://qatest.dxmpay.com/api/0/refund',//申请退款
-            'callback'=>'https://liuliangtf.baigebaodev.com/api/Callback/sign_notify_url',//支付结果地址
-            'pay_callback'=>'https://liuliangtf.baigebaodev.com/api/Callback/sign_notify_url',//退款结果地址
+            'callback'=>'',//支付结果地址
+            'pay_callback'=>'',//退款结果地址
             'silent_signing_url'=>'https://qatest.dxmpay.com/cashdesk/service/easypayapi/silentsign',//静默签约
         ];
         $logPath = __DIR__ . '/logs';
