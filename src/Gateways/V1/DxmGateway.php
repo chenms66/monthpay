@@ -236,7 +236,7 @@ class DxmGateway extends AbstractGateway
      * @throws MonthPayException
      * 查询支持一键绑卡的银行列表
      */
-    public function banksOneClickBind(array $params)
+    public function banksOneClickBind()
     {
         $data = array_merge(
             $this->buildBaseParams(self::SERVICE_AUTH),
