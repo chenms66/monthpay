@@ -12,18 +12,19 @@ class DxmGateway extends AbstractGateway
     # ---------------------------
     # 常量定义
     # ---------------------------
-    const DEBIT_CARD     = 0; // 借记卡
-    const CREDIT_CARD    = 1; // 信用卡
+    const DEBIT_CARD = 0; // 借记卡
+    const CREDIT_CARD = 1; // 信用卡
 
-    const VERSION_V1     = 1;
-    const VERSION_V2     = 2;
+    const VERSION_V1 = 1;
+    const VERSION_V2 = 2;
 
-    const CHARSET_GBK    = 1;
-    const SIGN_MD5_GBK   = 1;
-    const CURRENCY_RMB   = 1;
-    const ENCRYPT_AES    = 1;
+    const CHARSET_GBK = 1;
+    const SIGN_MD5_GBK = 1;
+    const CURRENCY_RMB = 1;
+    const ENCRYPT_AES = 1;
 
-    const SERVICE_AUTH   = 2;
+    const SERVICE_CODE = 1;
+    const SERVICE_AUTH = 2;
     const SERVICE_DEDUCT = 3;
     const SERVICE_REFUND = 2;
 
@@ -80,8 +81,8 @@ class DxmGateway extends AbstractGateway
         $data = array_merge(
             $this->buildBaseParams(self::SERVICE_AUTH, self::VERSION_V1),
             [
-                'contract_no'     => $params['agreement_no'],
-                'need_send_sms'   => $params['need_send_sms'] ?? '0',
+                'contract_no' => $params['agreement_no'],
+                'need_send_sms' => $params['need_send_sms'] ?? '0',
             ]
         );
 
@@ -113,17 +114,17 @@ class DxmGateway extends AbstractGateway
         $data = array_merge(
             $this->buildBaseParams(self::SERVICE_DEDUCT, self::VERSION_V2),
             [
-                'contract_no'        => $params['agreement_no'],
-                'return_url'         => $this->config['callback'],
-                'return_method'      => 2,
-                'return_content_type'=> 1,
-                'order_create_time'  => date('YmdHis'),
-                'order_no'           => $params['out_trade_no'],
-                'goods_name'         => $params['goods_name'],
-                'goods_desc'         => $params['goods_desc'] ?? '保险商品代扣',
-                'total_amount'       => Utils::yuanToCent($params['expect_money']),
-                'expire_time'        => $params['expire_time'] ?? date('YmdHis', strtotime('+30 minute')),
-                'reqip'              => Utils::ip(),
+                'contract_no' => $params['agreement_no'],
+                'return_url' => $this->config['callback'],
+                'return_method' => 2,
+                'return_content_type' => 1,
+                'order_create_time' => date('YmdHis'),
+                'order_no' => $params['out_trade_no'],
+                'goods_name' => $params['goods_name'],
+                'goods_desc' => $params['goods_desc'] ?? '保险商品代扣',
+                'total_amount' => Utils::yuanToCent($params['expect_money']),
+                'expire_time' => $params['expire_time'] ?? date('YmdHis', strtotime('+30 minute')),
+                'reqip' => Utils::ip(),
             ]
         );
         $data['sign'] = $this->sign($data);
@@ -136,19 +137,19 @@ class DxmGateway extends AbstractGateway
      */
     public function commonRefund(array $params)
     {
-        Validator::validateRequiredFields($params, ['out_trade_no','refund_no','refund_amount']);
+        Validator::validateRequiredFields($params, ['out_trade_no', 'refund_no', 'refund_amount']);
         $data = array_merge(
             $this->buildBaseParams(self::SERVICE_REFUND, self::VERSION_V2),
             [
-                'cashback_time'   => date('YmdHis'),
-                'order_no'        => $params['out_trade_no'],
-                'sp_refund_no'    => $params['refund_no'],
+                'cashback_time' => date('YmdHis'),
+                'order_no' => $params['out_trade_no'],
+                'sp_refund_no' => $params['refund_no'],
                 'cashback_amount' => Utils::yuanToCent($params['refund_amount']),
-                'return_url'      => $this->config['pay_callback'],
-                'return_method'   => 1,
-                'output_type'     => 2,
-                'output_charset'  => 2,
-                'refund_type'     => $params['refund_type'] ?? '2',
+                'return_url' => $this->config['pay_callback'],
+                'return_method' => 1,
+                'output_type' => 2,
+                'output_charset' => 2,
+                'refund_type' => $params['refund_type'] ?? '2',
             ]
         );
         $data['sign'] = $this->sign($data);
@@ -182,12 +183,12 @@ class DxmGateway extends AbstractGateway
     protected function buildBaseParams(int $serviceCode, int $version = self::VERSION_V1): array
     {
         return [
-            'version'       => $version,
+            'version' => $version,
             'input_charset' => self::CHARSET_GBK,
-            'sign_method'   => self::SIGN_MD5_GBK,
-            'currency'      => self::CURRENCY_RMB,
-            'sp_no'         => $this->config['sp_no'],
-            'service_code'  => $serviceCode,
+            'sign_method' => self::SIGN_MD5_GBK,
+            'currency' => self::CURRENCY_RMB,
+            'sp_no' => $this->config['sp_no'],
+            'service_code' => $serviceCode,
         ];
     }
 
@@ -196,8 +197,8 @@ class DxmGateway extends AbstractGateway
         return array_merge(
             $this->buildBaseParams(self::SERVICE_AUTH, self::VERSION_V1),
             [
-                'card_type'      => $params['card_type'] ?? self::DEBIT_CARD,
-                'id_type'        => $params['t_paper_type'],
+                'card_type' => $params['card_type'] ?? self::DEBIT_CARD,
+                'id_type' => $params['t_paper_type'],
                 'encrypt_method' => self::ENCRYPT_AES,
             ],
             $this->encryptFields($params)
@@ -207,10 +208,10 @@ class DxmGateway extends AbstractGateway
     protected function encryptFields(array $params): array
     {
         return [
-            'card_no'   => Utils::dxmEncrypt($params['card_no'], $this->config['key']),
+            'card_no' => Utils::dxmEncrypt($params['card_no'], $this->config['key']),
             'card_name' => Utils::dxmEncrypt($params['t_name'], $this->config['key']),
-            'id_no'     => Utils::dxmEncrypt($params['t_paper_num'], $this->config['key']),
-            'phone'     => Utils::dxmEncrypt($params['t_tel'], $this->config['key']),
+            'id_no' => Utils::dxmEncrypt($params['t_paper_num'], $this->config['key']),
+            'phone' => Utils::dxmEncrypt($params['t_tel'], $this->config['key']),
         ];
     }
 
@@ -228,4 +229,55 @@ class DxmGateway extends AbstractGateway
     {
         return md5(Utils::_getParamsString($params, $this->config['key']));
     }
+
+    /**
+     * @param array $params
+     * @return array|bool|string
+     * @throws MonthPayException
+     * 查询支持一键绑卡的银行列表
+     */
+    public function banksOneClickBind(array $params)
+    {
+        $data = array_merge(
+            $this->buildBaseParams(self::SERVICE_AUTH),
+            [
+                'type' => 0,//1、查询支持绑借记卡的。2、查询支持绑贷记卡类型的。0、查询支持借记卡或贷记卡的
+                'pay_amount' => 0,//单位，分，默认传0
+            ]
+        );
+        $data['sign'] = $this->sign($data);
+
+        return $this->request($data, $this->config['banks_one_click_bind'], __FUNCTION__);
+    }
+
+    /**
+     * @param array $params
+     * @return array|bool|string
+     * @throws MonthPayException
+     * 银行卡签约
+     */
+    public function bankSign(array $params)
+    {
+        Validator::validateRequiredFields($params, ['out_trade_no', 'bank_no', 'card_type', 't_paper_num', 't_paper_type', 't_tel']);
+        $data = array_merge(
+            $this->buildBaseParams(self::SERVICE_CODE),
+            [
+                'tran_serial_no' => $params['out_trade_no'],//签约流水号	字母+数字最大50位，不支持特殊字符，串联整个流程，24小时内不可重复。
+                'encrypt_method' => self::ENCRYPT_AES,
+                'card_name' => Utils::dxmEncrypt($params['t_name'], $this->config['key']),
+                'bank_no' => (int)$params['bank_no'],//银行编码	int，查询支持银行列表返回
+                'card_type' => $params['card_type'],//卡类型 1、贷记卡、2借记卡
+                'certificate_no' => Utils::dxmEncrypt($params['t_paper_num'], $this->config['key']),//身份证号码，使用AES对用户身份要素进加密
+                'certificate_type' => $params['t_paper_type'],//目前仅支持身份证，取值固定为1
+                'mobile' => Utils::dxmEncrypt($params['t_tel'], $this->config['key']),
+                'return_url' => $this->config['callback'],
+                'return_method' => 2,
+                'page_url' => $this->config['return_url'],//签约成功，页面从银行调回的地址
+                'sign_method' => self::SIGN_MD5_GBK,
+            ]
+        );
+        $data['sign'] = $this->sign($data);
+        return $this->request($data, $this->config['bank_sign'], __FUNCTION__);
+    }
+
 }
