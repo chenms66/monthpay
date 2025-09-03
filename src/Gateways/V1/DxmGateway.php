@@ -231,7 +231,6 @@ class DxmGateway extends AbstractGateway
     }
 
     /**
-     * @param array $params
      * @return array|bool|string
      * @throws MonthPayException
      * 查询支持一键绑卡的银行列表
