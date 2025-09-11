@@ -117,9 +117,7 @@ class Utils
 
         curl_close($ch);
 
-        // 尝试解析 JSON
-        $json = json_decode($response, true);
-        return $json ?? $response;
+        return  $response;
     }
 
     /**
