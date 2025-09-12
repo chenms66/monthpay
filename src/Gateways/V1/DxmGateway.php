@@ -257,7 +257,7 @@ class DxmGateway extends AbstractGateway
      */
     public function bankSign(array $params)
     {
-        Validator::validateRequiredFields($params, ['out_trade_no', 'bank_no', 'card_type', 't_paper_num', 't_paper_type', 't_tel']);
+        Validator::validateRequiredFields($params, ['out_trade_no', 'bank_no', 'card_type', 't_paper_num', 't_paper_type', 't_tel','t_name']);
         $data = array_merge(
             $this->buildBaseParams(self::SERVICE_CODE),
             [
