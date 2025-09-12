@@ -281,7 +281,7 @@ class DxmGateway extends AbstractGateway
                 'certificate_no' => Utils::dxmEncrypt($params['t_paper_num'], $this->config['key']),//身份证号码，使用AES对用户身份要素进加密
                 'certificate_type' => $params['t_paper_type'],//目前仅支持身份证，取值固定为1
                 'mobile' => Utils::dxmEncrypt($params['t_tel'], $this->config['key']),
-                'return_url' => $this->config['callback'],
+                'return_url' => $this->config['sign_callback'],
                 'return_method' => 2,
                 'page_url' => $this->config['return_url'],//签约成功，页面从银行调回的地址
                 'sign_method' => self::SIGN_MD5_GBK,
