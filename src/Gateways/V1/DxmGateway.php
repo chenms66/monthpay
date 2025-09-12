@@ -215,8 +215,20 @@ class DxmGateway extends AbstractGateway
         ];
     }
 
+    protected function decryptFields(array $params): array
+    {
+        $decryptField = ['card_no', 'card_name', 'id_no', 'phone','card_name','certificate_no','certificate_type','mobile'];
+        foreach ($params as $key => $value) {
+            if(in_array($key,$decryptField)){
+                $params[$key] = Utils::dxmDecrypt($value, $this->config['key']);
+            }
+        }
+        return $params;
+    }
+
     protected function request(array $params, string $url, string $action, string $method = 'post')
     {
+        $this->logRequest($action.'明文用户信息:', $this->decryptFields($params));
         $this->logRequest($action, $params);
         $result = $method === 'post'
             ? Utils::httpCurl($url, $params)

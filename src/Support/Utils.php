@@ -66,12 +66,17 @@ class Utils
         return base64_encode($data);
     }
     public static function dxmDecrypt($str,$key) {
-        $str = base64_decode($str);
-        if (false === $str) {
-            return false;
-        }
-        $str = mb_convert_encoding($str, "GBK", "UTF-8");
-        return openssl_decrypt($str,"AES-128-ECB",md5($key,true),OPENSSL_RAW_DATA );
+        // 1. Base64解码
+        $encryptedData = base64_decode($str);
+
+        // 2. AES-128-ECB解密
+        $decryptedData = openssl_decrypt(
+            $encryptedData,
+            "AES-128-ECB",
+            md5($key, true),
+            OPENSSL_RAW_DATA
+        );
+        return mb_convert_encoding($decryptedData, "UTF-8", "GBK");
     }
 
     /**
