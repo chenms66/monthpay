@@ -5,35 +5,114 @@ use PHPUnit\Framework\TestCase;
 class Tests extends TestCase{
     public function test()
     {
-        /**************************************度小满*******************************************/
+        /****************************宝付****************************************/
         $config = [
-            'authorization_url' => 'https://qatest.dxmpay.com/cashdesk/service/easypayapi/verify',//请求授权，发送短信
-            'sp_no'=>'',
+            'mch_id' => '',// 商户号
             'key'=>'',
-            'sign_url' => 'https://qatest.dxmpay.com/cashdesk/service/easypayapi/sign',//签约
-            'pay_url' => 'https://qatest.dxmpay.com/cashdesk/service/easypayapi/pay',//支付
-            'cancel_url' => 'https://qatest.dxmpay.com/cashdesk/service/easypayapi/cancelcontract',//绑定解除
-            'query_sign_url' => 'https://qatest.dxmpay.com/cashdesk/service/easypayapi/querybeforepay',//签约查询
-            'refund_url' => 'https://qatest.dxmpay.com/api/0/refund',//申请退款
+            'public_key'=> '',
+            'private_key'=>'',
+            'terminal_id'=>'',//终端号
+            'version'=>'4.0.0.0',
+            'key_pwd'=>'',
+            'authorization_url' => 'https://public.baofoo.com/cutpayment/protocol/backTransRequest',//请求地址
+            'refund_url' => 'https://public.baofoo.com/cutpayment/api/backTransRequest',//申请退款
+            'return_url' => '',
             'callback'=>'',//支付结果地址
-            'pay_callback'=>'',//退款结果地址
-            'silent_signing_url'=>'https://qatest.dxmpay.com/cashdesk/service/easypayapi/silentsign',//静默签约
         ];
         $logPath = __DIR__ . '/logs';
-        $MonthPay = new \BaiGe\MonthPay\MonthPay('dxm',$config,$logPath);
-        $params = [
-            'card_type'=> '',
-            'card_no'=>'',
-            't_name' => '',//投保人
-            't_paper_type'=>'',
-            't_paper_num'=>'',
-            't_tel'=>'',
-            'code'=>'',
-        ];
+        $MonthPay = new \BaiGe\MonthPay\MonthPay('baofu',$config,$logPath);
+//        $params = [
+//            'card_type'=> '0',
+//            'card_no'=>'',
+//            't_name' => '',//投保人
+//            't_paper_type'=>'1',
+//            't_paper_num'=>'',
+//            't_tel'=>'',
+//            'num_id'=>date('YmdHis').rand(10000,99999),
+//        ];
+//        $res = $MonthPay->gateway()->h5Sign($params);//预绑卡
+//        var_dump($res);die;
+//        $params = [
+//            'unique_code'=>'202602111611033045447',
+//            'code'=>'712937',
+//            'num_id'=>date('YmdHis').rand(10000,99999)
+//        ];
+//        $res = $MonthPay->gateway()->signingEndpoint($params);//确认绑卡
+//        var_dump($res);
+//        $params = [
+//            'out_trade_no'=>date('YmdHis').rand(10000,99999),
+//            'agreement_no'=>'1202602111611525725259048953',
+//            'expect_money'=>'0.01',
+//            'num_id'=>date('YmdHis').rand(10000,99999),
+//        ];
+//        $res = $MonthPay->gateway()->deductMoney($params);//确认扣款
+
+//        $params = [
+//            'out_trade_no'=>'2026021116132378439',//2026021011035454200
+//            'refund_no'=>date('YmdHis').rand(100000,999999),
+//            'refund_amount'=>'0.01',
+//        ];
+//        $res = $MonthPay->gateway()->commonRefund($params);//退款
+//var_dump($res);die;
+//        $params = [
+//            'num_id'=>'123456'.rand(100000,999999),//2026021011035454200
+//            'card_no'=>'',
+//        ];
+//        $res = $MonthPay->gateway()->querySign($params);//查询
+//        var_dump($res);
+
+//        $params = [
+//            'num_id'=>'123456'.rand(100000,999999),//2026021011035454200
+//            'card_no'=>'',
+//            'out_trade_no'=>date('YmdHis').rand(10000,99999),
+//            'expect_money'=>'1',
+//        ];
+//        $res = $MonthPay->gateway()->silentSign($params);//查询
+
+//        $params = [
+//            'num_id'=>rand(10000000, 999999999),
+//            'card_type'=> '2',
+//            'card_no'=>'',
+//            't_name' => '',//投保人
+//            't_paper_type'=>'1',
+//            't_paper_num'=>'',
+//            't_tel'=>'',
+//            'bank_no'=>'CCB'
+//        ];
+//        $res = $MonthPay->gateway()->bankSign($params);
+//
+//        var_dump($res);
+
+
+        /**************************************度小满*******************************************/
+//        $config = [
+//            'authorization_url' => 'https://qatest.dxmpay.com/cashdesk/service/easypayapi/verify',//请求授权，发送短信
+//            'sp_no'=>'',
+//            'key'=>'',
+//            'sign_url' => 'https://qatest.dxmpay.com/cashdesk/service/easypayapi/sign',//签约
+//            'pay_url' => 'https://qatest.dxmpay.com/cashdesk/service/easypayapi/pay',//支付
+//            'cancel_url' => 'https://qatest.dxmpay.com/cashdesk/service/easypayapi/cancelcontract',//绑定解除
+//            'query_sign_url' => 'https://qatest.dxmpay.com/cashdesk/service/easypayapi/querybeforepay',//签约查询
+//            'refund_url' => 'https://qatest.dxmpay.com/api/0/refund',//申请退款
+//            'callback'=>'',//支付结果地址
+//            'pay_callback'=>'',//退款结果地址
+//            'silent_signing_url'=>'https://qatest.dxmpay.com/cashdesk/service/easypayapi/silentsign',//静默签约
+//        ];
+//        $logPath = __DIR__ . '/logs';
+//        $MonthPay = new \BaiGe\MonthPay\MonthPay('dxm',$config,$logPath);
+//        $params = [
+//            'card_type'=> '',
+//            'card_no'=>'',
+//            't_name' => '',//投保人
+//            't_paper_type'=>'',
+//            't_paper_num'=>'',
+//            't_tel'=>'',
+//            'code'=>'',
+//        ];
 //        $res = $MonthPay->gateway()->authEndpoint($params);
 //        $res = $MonthPay->gateway()->signingEndpoint($params);
 //        $params = ['out_trade_no'=>''.time(), 'agreement_no'=>'', 'goods_name'=>'测试扣款', 'expect_money'=>'0.01'];
-//        $res = $MonthPay->gateway()->deductMoney($params);
+//        $res = $MonthPay->gateway()->deductMoney($params);//
 //        $params = ['agreement_no'=>''];
 //        $res = $MonthPay->gateway()->relieveAppoint($params);
 
@@ -75,7 +154,7 @@ class Tests extends TestCase{
 //        $res = $MonthPay->h5Sign($params);
 //        var_dump($res);
 
-   /**************************************微信签约*******************************************/
+        /**************************************微信签约*******************************************/
 //        $config = [
 //            'notify_url' => '',//签约回调,解约回调
 //            'callback' => '',//微信支付回调
@@ -119,7 +198,7 @@ class Tests extends TestCase{
 //        $res = $MonthPay->h5Sign($params);
 //        var_dump($res);
 
-   /**************************************微信签约*******************************************/
+        /**************************************微信签约*******************************************/
 //        $config = [
 //            'notify_url' => '',//签约回调,解约回调
 //            'callback' => '',//微信支付回调
