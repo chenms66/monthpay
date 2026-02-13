@@ -169,6 +169,20 @@ class MonthPay
     }
 
     /**
+     * @param array $params
+     * @return array
+     * 解除绑定
+     */
+    public function cancelContract(array $params)
+    {
+        try {
+            $result = $this->gateway->cancelContract($params);
+            return $this->formatResponse($result);
+        } catch (MonthPayException $e) {
+            return $this->formatError($e->getMessage());
+        }
+    }
+    /**
      * 统一响应格式
      * @param mixed $response
      * @return array
@@ -184,12 +198,12 @@ class MonthPay
             }
         }
 
-        // 处理数组响应
-        if (is_array($response)) {
+        // ✅ 网关标准响应：直接透传业务状态
+        if (is_array($response) && isset($response['result'])) {
             return [
-                'result' => 0,
-                'msg' => 'success',
-                'data' => $response
+                'result' => (int)$response['result'],
+                'msg'    => $response['result_string'] ?? '',
+                'data'   => $response
             ];
         }
 

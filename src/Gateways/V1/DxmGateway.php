@@ -238,10 +238,28 @@ class DxmGateway extends AbstractGateway
             : Utils::curl_get($url, $params);
         $this->logResponse($action, $result);
         $res = json_decode($res,true);
-        if($res['result'] != 0){
-            throw new MonthPayException($res['result_string'] ?? '交易失败');
+
+        if (!is_array($res) || !isset($res['result'])) {
+            throw new MonthPayException('接口返回格式异常');
         }
-        return $result;
+
+        $code = (int)$res['result'];
+
+        // ✅ 允许直接返回的业务码
+        $passCodes = [60500, 60519];
+
+        if (in_array($code, $passCodes, true)) {
+            return $res;
+        }
+
+        if ($code !== 0) {
+            throw new MonthPayException(
+                $res['result_string'] ?? '交易失败',
+                $code
+            );
+        }
+
+        return $res;
     }
 
     protected function sign(array $params): string
