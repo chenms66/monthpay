@@ -237,7 +237,7 @@ class DxmGateway extends AbstractGateway
             ? Utils::httpCurl($url, $params)
             : Utils::curl_get($url, $params);
         $this->logResponse($action, $result);
-        $res = json_decode($res,true);
+        $res = json_decode($result,true);
 
         if (!is_array($res) || !isset($res['result'])) {
             throw new MonthPayException('接口返回格式异常');
