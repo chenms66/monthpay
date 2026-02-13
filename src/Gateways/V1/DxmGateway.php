@@ -226,6 +226,9 @@ class DxmGateway extends AbstractGateway
         return $params;
     }
 
+    /**
+     * @throws MonthPayException
+     */
     protected function request(array $params, string $url, string $action, string $method = 'post')
     {
         $this->logRequest($action.'明文用户信息:', $this->decryptFields($params));
@@ -234,6 +237,10 @@ class DxmGateway extends AbstractGateway
             ? Utils::httpCurl($url, $params)
             : Utils::curl_get($url, $params);
         $this->logResponse($action, $result);
+        $res = json_decode($res,true);
+        if($res['result'] != 0){
+            throw new MonthPayException($res['result_string'] ?? '交易失败');
+        }
         return $result;
     }
 

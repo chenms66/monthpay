@@ -28,7 +28,7 @@ class BaofuGateway extends AbstractGateway
      * =========================*/
 
     /** 借记卡 */
-    const DEBIT_CARD = 0;
+    const DEBIT_CARD = 2;
 
     /** 信用卡 */
     const CREDIT_CARD = 1;
@@ -137,27 +137,22 @@ class BaofuGateway extends AbstractGateway
 
     /**
      * 静默签约
-     * 先查询是否已签约，若存在协议号则直接扣款
+     * 先查询是否已签约
      */
     public function silentSign(array $params)
     {
         $res = $this->querySign($params);
-
         if (empty($res)) {
             return null;
         }
-
-        $agreementNo = is_string($res)
-            ? explode('|', $res)[0] ?? null
-            : ($res['protocols'] ?? null);
+        $agreementNo = isset($res['protocols']) ? explode('|', $res['protocols'])[0] : null;
 
         if (!$agreementNo) {
             return null;
         }
 
         $params['agreement_no'] = $agreementNo;
-
-        return $this->deductMoney($params);
+        return $params;
     }
 
     /* =====================================================
@@ -227,9 +222,13 @@ class BaofuGateway extends AbstractGateway
             'txn_sub_type' => '09',
             'data_type'    => 'json',
             'data_content' => $encrypted,
+            'notice_url'   => $this->config['refund_result']
         ];
+        $this->logRequest('退费请求报文:', var_export($payload,true));
 
         $result = Utils::httpCurl($this->config['refund_url'], $payload);
+
+        $this->logRequest('退费返回报文:', var_export($result,true));
 
         $decrypted = RSAUtil::decryptByCERFile(
             $result,
@@ -271,6 +270,7 @@ class BaofuGateway extends AbstractGateway
 
     /**
      * 验签 + 状态校验
+     * @throws MonthPayException
      */
     protected function handleResponse(string $result)
     {
@@ -278,6 +278,10 @@ class BaofuGateway extends AbstractGateway
 
         if (!isset($data['signature'])) {
             throw new MonthPayException('缺少签名参数');
+        }
+
+        if(isset($data['txn_type']) && $data['txn_type'] == 90){
+            return $data;
         }
 
         $signature = $data['signature'];
@@ -295,7 +299,8 @@ class BaofuGateway extends AbstractGateway
         }
 
         if (($data['resp_code'] ?? null) !== self::RESP_SUCCESS) {
-            throw new MonthPayException($data['resp_msg'] ?? '交易失败');
+            $msg = $data['resp_msg'] ?? $data['biz_resp_msg'] ?? '交易失败';
+            throw new MonthPayException($msg);
         }
 
         return $this->decryptResponse($data);
@@ -412,5 +417,44 @@ class BaofuGateway extends AbstractGateway
         return in_array($field, [
             'unique_code','protocol_no','protocols'
         ]);
+    }
+
+    /**
+     * 银行卡签约
+     *
+     * txn_type = 90
+     *
+     * @param array $params
+     * @return array
+     * @throws MonthPayException
+     */
+    public function bankSign(array $params, $txn_type = '90')
+    {
+        Validator::validateRequiredFields($params, [
+            'out_trade_no',
+            'bank_no',
+            'card_type',
+            't_paper_num',
+            't_paper_type',
+            't_name'
+        ]);
+
+        // 卡信息：姓名|身份证号
+        $cardInfo = implode('|', [
+            $params['t_name'],
+            $params['t_paper_num'],
+        ]);
+
+        $data = $this->buildBaseData($params['out_trade_no'], $txn_type) + [
+                'bank_code'   => $params['bank_no'],
+                'card_type'   => $params['card_type'] == self::DEBIT_CARD ? '101' : '102',
+                'id_card_type'=> '0' . $params['t_paper_type'],
+                'acc_info'    => $this->encryptWithBase64($cardInfo),
+                'page_url'    => $this->config['return_url'].'?num_id='.$params['num_id'],
+                'return_url'  => $this->config['callback'],
+                'risk_item'   => json_encode(['goodsCategory' => '05'], JSON_UNESCAPED_UNICODE),
+            ];
+
+        return $this->requestSigned($data);
     }
 }
