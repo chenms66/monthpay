@@ -203,6 +203,7 @@ class BaofuGateway extends AbstractGateway
             'refund_reason'   => '退款',
             'refund_amt'      => $this->amountToCent($params['refund_amount']),
             'refund_time'     => date('YmdHis'),
+            'notice_url'   => $this->config['refund_result']
         ];
 
         $json = json_encode($content, JSON_UNESCAPED_UNICODE);
@@ -222,7 +223,6 @@ class BaofuGateway extends AbstractGateway
             'txn_sub_type' => '09',
             'data_type'    => 'json',
             'data_content' => $encrypted,
-            'notice_url'   => $this->config['refund_result']
         ];
         $this->logRequest('退费请求报文:', $payload);
 
