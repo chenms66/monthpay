@@ -450,7 +450,7 @@ class BaofuGateway extends AbstractGateway
                 'card_type'   => $params['card_type'] == self::DEBIT_CARD ? '101' : '102',
                 'id_card_type'=> '0' . $params['t_paper_type'],
                 'acc_info'    => $this->encryptWithBase64($cardInfo),
-                'page_url'    => $this->config['return_url'].'?num_id='.$params['num_id'],
+                'page_url'    => $this->config['return_url'],
                 'return_url'  => $this->config['callback'],
                 'risk_item'   => json_encode(['goodsCategory' => '05'], JSON_UNESCAPED_UNICODE),
             ];
