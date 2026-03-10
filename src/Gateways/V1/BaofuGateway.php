@@ -451,7 +451,7 @@ class BaofuGateway extends AbstractGateway
                 'id_card_type'=> '0' . $params['t_paper_type'],
                 'acc_info'    => $this->encryptWithBase64($cardInfo),
                 'page_url'    => $this->config['return_url'],
-                'return_url'  => $this->config['callback'],
+                'return_url'  => $this->config['sign_callback'],
                 'risk_item'   => json_encode(['goodsCategory' => '05'], JSON_UNESCAPED_UNICODE),
             ];
 
