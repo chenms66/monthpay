@@ -300,7 +300,9 @@ class BaofuGateway extends AbstractGateway
 
         if (($data['resp_code'] ?? null) !== self::RESP_SUCCESS) {
             $msg = $data['resp_msg'] ?? $data['biz_resp_msg'] ?? '交易失败';
-            throw new MonthPayException($msg);
+            $bizRespCode = $data['biz_resp_code'] ?? null;
+
+            throw new MonthPayException($msg, 0, null, $bizRespCode);
         }
 
         return $this->decryptResponse($data);

@@ -245,17 +245,12 @@ class DxmGateway extends AbstractGateway
 
         $code = (int)$res['result'];
 
-        // ✅ 允许直接返回的业务码
-        $passCodes = [60500, 60519];
-
-        if (in_array($code, $passCodes, true)) {
-            return $res;
-        }
-
         if ($code !== 0) {
             throw new MonthPayException(
                 $res['result_string'] ?? '交易失败',
-                $code
+                $code,
+                null,
+                (string)$res['result']
             );
         }
 

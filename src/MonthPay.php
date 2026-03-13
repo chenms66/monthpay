@@ -44,7 +44,7 @@ class MonthPay
             $result = $this->gateway->h5Sign($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
-            return $this->formatError($e->getMessage());
+            return $this->formatError($e->getMessage(), $e);
         }
     }
 
@@ -54,7 +54,7 @@ class MonthPay
             $result = $this->gateway->silentsign($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
-            return $this->formatError($e->getMessage());
+            return $this->formatError($e->getMessage(), $e);
         }
     }
 
@@ -64,7 +64,7 @@ class MonthPay
             $result = $this->gateway->signingEndpoint($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
-            return $this->formatError($e->getMessage());
+            return $this->formatError($e->getMessage(), $e);
         }
     }
     /**
@@ -78,7 +78,7 @@ class MonthPay
             $result = $this->gateway->wxSign($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
-            return $this->formatError($e->getMessage());
+            return $this->formatError($e->getMessage(), $e);
         }
     }
 
@@ -93,7 +93,7 @@ class MonthPay
             $result = $this->gateway->preDeduct($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
-            return $this->formatError($e->getMessage());
+            return $this->formatError($e->getMessage(), $e);
         }
     }
 
@@ -108,7 +108,7 @@ class MonthPay
             $result = $this->gateway->deductMoney($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
-            return $this->formatError($e->getMessage());
+            return $this->formatError($e->getMessage(), $e);
         }
     }
 
@@ -122,7 +122,7 @@ class MonthPay
             $result = $this->gateway->cardRequest($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
-            return $this->formatError($e->getMessage());
+            return $this->formatError($e->getMessage(), $e);
         }
     }
 
@@ -136,7 +136,7 @@ class MonthPay
             $result = $this->gateway->commonCancel($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
-            return $this->formatError($e->getMessage());
+            return $this->formatError($e->getMessage(), $e);
         }
     }
 
@@ -150,7 +150,7 @@ class MonthPay
             $result = $this->gateway->commonRefund($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
-            return $this->formatError($e->getMessage());
+            return $this->formatError($e->getMessage(), $e);
         }
     }
 
@@ -164,7 +164,7 @@ class MonthPay
             $result = $this->gateway->banksign($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
-            return $this->formatError($e->getMessage());
+            return $this->formatError($e->getMessage(), $e);
         }
     }
 
@@ -179,7 +179,7 @@ class MonthPay
             $result = $this->gateway->cancelContract($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
-            return $this->formatError($e->getMessage());
+            return $this->formatError($e->getMessage(), $e);
         }
     }
     /**
@@ -218,14 +218,23 @@ class MonthPay
     /**
      * 统一错误格式
      * @param string $message
+     * @param MonthPayException|null $exception
      * @return array
      */
-    protected function formatError($message)
+    protected function formatError($message, $exception = null)
     {
+        $data = null;
+        
+        if ($exception instanceof MonthPayException && $exception->getChannelCode()) {
+            $data = [
+                'channel_code' => $exception->getChannelCode()
+            ];
+        }
+        
         return [
             'result' => -1,
             'msg' => $message,
-            'data' => null
+            'data' => $data
         ];
     }
 
