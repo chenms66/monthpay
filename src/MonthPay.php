@@ -6,6 +6,7 @@ use BaiGe\MonthPay\Exceptions\MonthPayException;
 use BaiGe\MonthPay\Gateways\V1\BankGateway;
 use BaiGe\MonthPay\Gateways\V1\BaofuGateway;
 use BaiGe\MonthPay\Gateways\V1\DxmGateway;
+use BaiGe\MonthPay\Gateways\V1\SuningGateway;
 use BaiGe\MonthPay\Gateways\V1\WechatGateway;
 use BaiGe\MonthPay\Validator\Validator;
 
@@ -27,6 +28,9 @@ class MonthPay
                 break;
             case 'baofu':
                 $this->gateway = new BaofuGateway($config ?? [],$logPath);
+                break;
+            case 'suning':
+                $this->gateway = new SuningGateway($config ?? [],$logPath);
                 break;
             default:
                 throw new MonthPayException("渠道不存在");
