@@ -254,7 +254,7 @@ class SuningGateway extends AbstractGateway
         Validator::validateRequiredFields($params, [
             't_name',
             't_paper_num',
-            'num_id',
+            'out_trade_no',
             'bank_no',
             't_tel'
         ]);
@@ -274,7 +274,7 @@ class SuningGateway extends AbstractGateway
                 'goodsType' => $this->config['goodsType'],
                 'productCode' => '00010000674',
                 'version' => '2.6',
-                'requestNo' => $params['num_id'] . '-' . rand(10000, 99999),
+                'requestNo' => $params['out_trade_no'],
                 'signTactics' => '02',
                 'cancelNotifyUrl' => $this->config['sign_callback'],
                 'notifyUrl' => $this->config['sign_callback'],
