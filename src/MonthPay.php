@@ -246,4 +246,19 @@ class MonthPay
     {
         return $this->gateway;
     }
+
+    /**
+     * @param $params
+     * @return array
+     * 查询签约信息
+     */
+    public function querySign($params): array
+    {
+        try {
+            $result = $this->gateway->querySign($params);
+            return $this->formatResponse($result);
+        } catch (MonthPayException $e) {
+            return $this->formatError($e->getMessage(), $e);
+        }
+    }
 }

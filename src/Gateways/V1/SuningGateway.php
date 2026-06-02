@@ -90,7 +90,7 @@ class SuningGateway extends AbstractGateway
                 'mobileNo' => $params['t_tel'],
                 'cardNo' => $params['card_no'],
             ], JSON_UNESCAPED_UNICODE)),
-            'merchantUserNo' => $params['t_tel'],
+            'merchantUserNo' => $params['t_paper_num'],
             'salerMerchantNo' => $this->config['mch_id'],
             'clientIp' => Utils::ip(),
             'goodsType' => $this->config['goodsType'],
@@ -145,12 +145,12 @@ class SuningGateway extends AbstractGateway
     {
         Validator::validateRequiredFields($params, [
             'num_id',
-            't_tel',
+            't_paper_num',
         ]);
 
         return $this->requestSigned(
             array_merge($this->buildBaseData(), ['requestBody' => json_encode([
-                'merchantUserNo' => $params['t_tel'],
+                'merchantUserNo' => $params['t_paper_num'],
                 'serialNo' => $params['num_id'] . '-' . rand(10000, 99999),
                 'version' => '3.2',
             ], JSON_UNESCAPED_UNICODE)]),
@@ -268,7 +268,7 @@ class SuningGateway extends AbstractGateway
                     'bankCode' => $params['bank_no'],
                     'cardType' => $cardType,
                 ], JSON_UNESCAPED_UNICODE)),
-                'merchantUserNo' => $params['t_tel'],
+                'merchantUserNo' => $params['t_paper_num'],
                 'salerMerchantNo' => $this->config['mch_id'],
                 'clientIp' => Utils::ip(),
                 'goodsType' => $this->config['goodsType'],
