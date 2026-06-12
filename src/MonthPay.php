@@ -8,6 +8,7 @@ use BaiGe\MonthPay\Gateways\V1\BaofuGateway;
 use BaiGe\MonthPay\Gateways\V1\DxmGateway;
 use BaiGe\MonthPay\Gateways\V1\SuningGateway;
 use BaiGe\MonthPay\Gateways\V1\WechatGateway;
+use BaiGe\MonthPay\Gateways\V1\YeepayGateway;
 use BaiGe\MonthPay\Validator\Validator;
 
 class MonthPay
@@ -31,6 +32,9 @@ class MonthPay
                 break;
             case 'suning':
                 $this->gateway = new SuningGateway($config ?? [],$logPath);
+                break;
+            case 'yeepay':
+                $this->gateway = new YeepayGateway($config ?? [],$logPath);
                 break;
             default:
                 throw new MonthPayException("渠道不存在");
