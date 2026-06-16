@@ -120,7 +120,7 @@ class YeepayGateway extends AbstractGateway
         $data['userType'] = $params['user_type'] ?? 'ID_CARD';
         $data['userName'] = $params['t_name'];
         $data['idCardNo'] = $params['t_paper_num'];
-        $data['idCardType'] = $params['t_paper_type'] ?? 'ID';
+        $data['idCardType'] = 'ID';
         $data['bankCode'] = $params['bank_no'];
         $data['cardType'] = $params['card_type'] == self::DEBIT_CARD ? 'OD' : 'OC';
         $data['pageReturnUrl'] = $this->config['return_url'] ?? '';
