@@ -107,7 +107,7 @@ class YeepayGateway extends AbstractGateway
     public function bankSign(array $params)
     {
         Validator::validateRequiredFields($params, [
-            'num_id',
+            'out_trade_no',
             'bank_no',
             't_name',
             't_paper_num',
@@ -115,7 +115,7 @@ class YeepayGateway extends AbstractGateway
         ]);
 
         $data = $this->buildBaseParams();
-        $data['merchantFlowId'] = $params['num_id'];
+        $data['merchantFlowId'] = $params['out_trade_no'];
         $data['userNo'] = $params['t_paper_num'];
         $data['userType'] = $params['user_type'] ?? 'ID_CARD';
         $data['userName'] = $params['t_name'];
