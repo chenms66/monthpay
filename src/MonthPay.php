@@ -9,6 +9,7 @@ use BaiGe\MonthPay\Gateways\V1\DxmGateway;
 use BaiGe\MonthPay\Gateways\V1\SuningGateway;
 use BaiGe\MonthPay\Gateways\V1\WechatGateway;
 use BaiGe\MonthPay\Gateways\V1\YeepayGateway;
+use BaiGe\MonthPay\Gateways\V2\YeepayGateway as YeepayGatewayV2;
 use BaiGe\MonthPay\Validator\Validator;
 
 class MonthPay
@@ -35,6 +36,9 @@ class MonthPay
                 break;
             case 'yeepay':
                 $this->gateway = new YeepayGateway($config ?? [],$logPath);
+                break;
+            case 'yeepayv2':
+                $this->gateway = new YeepayGatewayV2($config ?? [],$logPath);
                 break;
             default:
                 throw new MonthPayException("渠道不存在");
@@ -260,6 +264,21 @@ class MonthPay
     {
         try {
             $result = $this->gateway->querySign($params);
+            return $this->formatResponse($result);
+        } catch (MonthPayException $e) {
+            return $this->formatError($e->getMessage(), $e);
+        }
+    }
+
+    /**
+     * @param $params
+     * @return array
+     * 重新发信短信
+     */
+    public function resendSms($params): array
+    {
+        try {
+            $result = $this->gateway->resendSms($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
             return $this->formatError($e->getMessage(), $e);
