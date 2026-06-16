@@ -33,6 +33,7 @@ class YeepayGateway extends AbstractGateway
     const CODE_SUCCESS = 'NOP00000';
     const TOKEN_SUCCESS = 'OPR00000';
     const PAY_CONFIRM = 'CAS00000';
+    const PAY_ORDER_PROCESSING = '00105';
 
     /** API 路径 */
     const API_FAST_BIND_CARD_REQUEST = '/rest/v1.0/frontcashier/bindcard/netsunion/request';
@@ -133,7 +134,8 @@ class YeepayGateway extends AbstractGateway
         Validator::validateRequiredFields($params, [
             'num_id',
             'expect_money',
-            'agreement_no'
+            'agreement_no',
+            't_paper_num'
         ]);
 
         $data = $this->buildBaseParams();
@@ -141,8 +143,10 @@ class YeepayGateway extends AbstractGateway
         $data['orderAmount'] = $params['expect_money'];
         $data['bindId'] = $params['agreement_no'];
         $data['goodsName'] = $params['goods_name'] ?? '交易订单';
-        $data['payScene'] = $params['payScene'] ?? 'LARGE';
+        $data['payScene'] = $params['payScene'] ?? 'FAST';
         $data['notifyUrl'] = $this->config['callback'] ?? '';
+        $data['userNo'] = $params['t_paper_num'];
+        $data['userType'] = $params['user_type'] ?? 'ID_CARD';
         return $this->request($data, self::PAY, __FUNCTION__);
     }
 
@@ -552,7 +556,7 @@ class YeepayGateway extends AbstractGateway
         // 检查返回码
         if (isset($res['result']['code'])) {
             $respCode = $res['result']['code'];
-            if ($respCode !== self::CODE_SUCCESS && $respCode !== self::TOKEN_SUCCESS && $respCode !== self::PAY_CONFIRM) {
+            if ($respCode !== self::CODE_SUCCESS && $respCode !== self::TOKEN_SUCCESS && $respCode !== self::PAY_CONFIRM && $respCode !== self::PAY_ORDER_PROCESSING) {
                 $msg = $res['result']['message'] ?? $res['result']['description'] ?? '交易失败';
                 throw new MonthPayException($msg, '-1', null, $respCode);
             }
