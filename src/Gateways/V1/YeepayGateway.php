@@ -133,13 +133,13 @@ class YeepayGateway extends AbstractGateway
     public function pay(array $params)
     {
         Validator::validateRequiredFields($params, [
-            'num_id',
+            'out_trade_no',
             'expect_money',
             'agreement_no'
         ]);
 
         $data = $this->buildBaseParams();
-        $data['orderId'] = $params['num_id'];
+        $data['orderId'] = $params['out_trade_no'];
         $data['orderAmount'] = $params['expect_money'];
         $data['bindId'] = $params['agreement_no'];
         $data['goodsName'] = $params['goods_name'] ?? '交易订单';
@@ -154,12 +154,12 @@ class YeepayGateway extends AbstractGateway
     public function tradeOrder(array $params)
     {
         Validator::validateRequiredFields($params, [
-            'num_id',
+            'out_trade_no',
             'expect_money',
         ]);
 
         $data = $this->buildBaseParams();
-        $data['orderId'] = $params['num_id'];
+        $data['orderId'] = $params['out_trade_no'];
         $data['orderAmount'] = $params['expect_money'];
         $data['goodsName'] = $params['goods_name'] ?? '交易订单';
         $data['fundProcessType'] = $params['fund_process_type'] ?? 'REAL_TIME';

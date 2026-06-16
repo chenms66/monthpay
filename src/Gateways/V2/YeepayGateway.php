@@ -132,14 +132,14 @@ class YeepayGateway extends AbstractGateway
     public function pay(array $params)
     {
         Validator::validateRequiredFields($params, [
-            'num_id',
+            'out_trade_no',
             'expect_money',
             'agreement_no',
             't_paper_num'
         ]);
 
         $data = $this->buildBaseParams();
-        $data['orderId'] = $params['num_id'];
+        $data['orderId'] = $params['out_trade_no'];
         $data['orderAmount'] = $params['expect_money'];
         $data['bindId'] = $params['agreement_no'];
         $data['goodsName'] = $params['goods_name'] ?? '交易订单';
@@ -236,7 +236,7 @@ class YeepayGateway extends AbstractGateway
 
         $data = $this->buildBaseParams();
         $data['refundRequestId'] = $params['refund_no'];
-        $data['refundAmount'] = $this->amountToCent($params['refund_amount']);
+        $data['refundAmount'] = $params['refund_amount'];
         $data['uniqueOrderNo'] = $params['out_trade_no'];
         $data['notifyUrl'] = $this->config['pay_callback'];
 
