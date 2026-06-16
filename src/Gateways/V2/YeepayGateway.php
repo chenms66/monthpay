@@ -188,12 +188,12 @@ class YeepayGateway extends AbstractGateway
     public function signingEndpoint(array $params)
     {
         Validator::validateRequiredFields($params, [
-            'num_id',
+            'unique_code',
             'code',
         ]);
 
         $data = $this->buildBaseParams();
-        $data['merchantFlowId'] = $params['num_id'];
+        $data['merchantFlowId'] = $params['unique_code'];
         $data['smsCode'] = $params['code'];
         return $this->request($data, self::API_BIND_CARD_CONFIRM, __FUNCTION__);
     }
@@ -202,11 +202,11 @@ class YeepayGateway extends AbstractGateway
     public function resendSms(array $params)
     {
         Validator::validateRequiredFields($params, [
-            'num_id',
+            'unique_code',
         ]);
 
         $data = $this->buildBaseParams();
-        $data['merchantFlowId'] = $params['num_id'];
+        $data['merchantFlowId'] = $params['unique_code'];
         return $this->request($data, self::API_RESEND_SMS, __FUNCTION__);
     }
 
