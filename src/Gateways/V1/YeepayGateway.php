@@ -178,13 +178,13 @@ class YeepayGateway extends AbstractGateway
     {
         Validator::validateRequiredFields($params, [
             'token',
-            'bind_id',
+            'agreement_no',
             't_paper_num',
         ]);
 
         $data = $this->buildBaseParams();
         $data['token'] = $params['token'];
-        $data['bindId'] = $params['bind_id'];
+        $data['bindId'] = $params['agreement_no'];
         $data['userNo'] = $params['t_paper_num'];
         $data['userType'] = $params['user_type'] ?? 'ID_CARD';
         $data['userIp'] = Utils::ip();
@@ -301,7 +301,7 @@ class YeepayGateway extends AbstractGateway
 
         $data = $this->buildBaseParams();
         $data['refundRequestId'] = $params['refund_no'];
-        $data['refundAmount'] = $this->amountToCent($params['refund_amount']);
+        $data['refundAmount'] = $params['refund_amount'];
         $data['uniqueOrderNo'] = $params['out_trade_no'];
         $data['notifyUrl'] = $this->config['pay_callback'];
 
