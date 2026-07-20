@@ -139,7 +139,7 @@ class HelipayGateway extends AbstractGateway
     public function signingEndpoint(array $params)
     {
         Validator::validateRequiredFields($params, [
-            'num_id',
+            'unique_code',
             'code',
         ]);
 
@@ -147,7 +147,7 @@ class HelipayGateway extends AbstractGateway
             $fields = [
                 'P1_bizType' => self::BIZ_TYPE_CONFIRM_BIND_CARD,
                 'P2_customerNumber' => $this->config['mch_id'],
-                'P3_orderId' => $params['num_id'],
+                'P3_orderId' => $params['unique_code'],
                 'P4_timestamp' => date('YmdHis'),
                 'P5_validateCode' => $params['code'],
                 'signatureType' => 'SM3WITHSM2',
