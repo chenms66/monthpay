@@ -11,7 +11,7 @@ use Exception;
 
 /**
  * 合利宝支付网关
- * 
+ *
  * 支持接口：
  * - 4.4 鉴权绑卡预下单
  * - 4.5 鉴权绑卡短信
@@ -174,7 +174,7 @@ class HelipayGateway extends AbstractGateway
         Validator::validateRequiredFields($params, [
             'agreement_no',
             't_paper_num',
-            'num_id',
+            'out_trade_no',
             'expect_money',
             't_tel',
         ]);
@@ -185,7 +185,7 @@ class HelipayGateway extends AbstractGateway
                 'P2_customerNumber' => $this->config['mch_id'],
                 'P3_bindId' => $params['agreement_no'],
                 'P4_userId' => $params['t_paper_num'],
-                'P5_orderId' => $params['num_id'],
+                'P5_orderId' => $params['out_trade_no'],
                 'P6_timestamp' => date('YmdHis'),
                 'P7_currency' => $this->config['currency'] ?? 'CNY',
                 'P8_orderAmount' => $params['expect_money'],
@@ -214,7 +214,7 @@ class HelipayGateway extends AbstractGateway
                 'bindCardPayPreOrder'
             );
 
-            return $this->bindCardPay(['num_id' => $params['num_id']]);
+            return $this->bindCardPay(['out_trade_no' => $params['out_trade_no']]);
 
         } catch (Exception $e) {
             $this->log->error('绑卡支付预下单失败：' . $e->getMessage());
@@ -230,14 +230,14 @@ class HelipayGateway extends AbstractGateway
     public function bindCardPay(array $params)
     {
         Validator::validateRequiredFields($params, [
-            'num_id',
+            'out_trade_no',
         ]);
 
         try {
             $fields = [
                 'P1_bizType' => self::BIZ_TYPE_CONFIRM_BIND_PAY,
                 'P2_customerNumber' => $this->config['mch_id'],
-                'P3_orderId' => $params['num_id'],
+                'P3_orderId' => $params['out_trade_no'],
                 'P4_timestamp' => date('YmdHis'),
                 'P5_validateCode' => isset($params['code']) ? $params['code'] : '',
                 'signatureType' => 'SM3WITHSM2',
@@ -271,7 +271,7 @@ class HelipayGateway extends AbstractGateway
     {
         Validator::validateRequiredFields($params, [
             't_paper_num',
-            'num_id',
+            'out_trade_no',
             't_name',
             'bank_no',
         ]);
@@ -281,7 +281,7 @@ class HelipayGateway extends AbstractGateway
                 'P1_bizType' => self::BIZ_TYPE_QUICK_BIND_CARD,
                 'P2_customerNumber' => $this->config['mch_id'],
                 'P3_userId' => $params['t_paper_num'],
-                'P4_orderId' => $params['num_id'],
+                'P4_orderId' => $params['out_trade_no'],
                 'P5_timestamp' => date('YmdHis'),
                 'P6_payerName' => $params['t_name'],
                 'P7_idCardType' => $this->config['id_card_type'] ?? 'IDCARD',
