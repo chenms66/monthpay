@@ -191,14 +191,14 @@ class HelipayRequestBuilder
      * @param array $res 响应数据
      * @throws MonthPayException
      */
-    private function verifyResponse(array $res)
+    public function verifyResponse(array $res)
     {
         if (!isset($res['sign'])) {
             throw new MonthPayException('响应中缺少签名');
         }
 
         $sign = $res['sign'];
-        $excludeFields = ['sign', 'signatureType', 'smsStatus', 'smsMsg', 'smsConfirm', 'ruleJson', 'receiverFee', 'offlineFee', 'presetSplitAmount'];
+        $excludeFields = ['sign', 'signatureType', 'smsStatus', 'smsMsg', 'smsConfirm', 'ruleJson', 'receiverFee', 'offlineFee', 'presetSplitAmount','unTransId','splittableAmount','payTransId'];
 
         $signFields = [];
         foreach ($res as $key => $value) {
@@ -209,12 +209,10 @@ class HelipayRequestBuilder
         }
 
         uksort($signFields, 'strnatcmp');
-
         $signStr = '';
         foreach ($signFields as $value) {
             $signStr .= '&' . strval($value === null ? '' : $value);
         }
-
         $publicKey = HelipaySM::getPublicKeyFromCER($this->config['helipay_public_cert_path']);
         $sm2UserId = $this->config['sm2_user_id'];
         $verified = HelipaySM::verify($signStr, $sign, $publicKey, $sm2UserId);

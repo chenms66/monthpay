@@ -175,7 +175,7 @@ class HelipayGateway extends AbstractGateway
             'agreement_no',
             't_paper_num',
             'num_id',
-            'policy_money',
+            'expect_money',
             't_tel',
         ]);
 
@@ -188,7 +188,7 @@ class HelipayGateway extends AbstractGateway
                 'P5_orderId' => $params['num_id'],
                 'P6_timestamp' => date('YmdHis'),
                 'P7_currency' => $this->config['currency'] ?? 'CNY',
-                'P8_orderAmount' => $params['policy_money'],
+                'P8_orderAmount' => $params['expect_money'],
                 'P9_goodsName' => $params['goods_name'] ?? '保费',
                 'P10_goodsDesc' => $params['goods_desc'] ?? '',
                 'P11_terminalType' => 'OTHER',
