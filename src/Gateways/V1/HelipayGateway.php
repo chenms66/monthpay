@@ -218,7 +218,8 @@ class HelipayGateway extends AbstractGateway
 
         } catch (Exception $e) {
             $this->log->error('绑卡支付预下单失败：' . $e->getMessage());
-            throw new MonthPayException($e->getMessage(), $e->getCode(), $e, $this->getChannel());
+            $channelCode = $e instanceof MonthPayException ? $e->getChannelCode() : null;
+            throw new MonthPayException($e->getMessage(), $e->getCode(), $e, $channelCode);
         }
     }
 
@@ -258,7 +259,8 @@ class HelipayGateway extends AbstractGateway
 
         } catch (Exception $e) {
             $this->log->error('绑卡支付失败：' . $e->getMessage());
-            throw new MonthPayException($e->getMessage(), $e->getCode(), $e, $this->getChannel());
+            $channelCode = $e instanceof MonthPayException ? $e->getChannelCode() : null;
+            throw new MonthPayException($e->getMessage(), $e->getCode(), $e, $channelCode);
         }
     }
 
