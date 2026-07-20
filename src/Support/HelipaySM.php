@@ -41,10 +41,12 @@ class HelipaySM
                 "-----END CERTIFICATE-----\n";
         }
 
-        // 尝试 OpenSSL 解析
+        // 尝试 OpenSSL 解析（SM2 证书 OpenSSL 不支持，会触发 warning，需屏蔽错误处理器）
         $cert = @openssl_x509_read($pem);
         if ($cert !== false) {
-            $keyDetail = @openssl_pkey_get_details($cert);
+            $prevHandler = set_error_handler(function () { return true; });
+            $keyDetail = openssl_pkey_get_details($cert);
+            restore_error_handler();
             if ($keyDetail !== false && isset($keyDetail['ec']['x']) && isset($keyDetail['ec']['y'])) {
                 return $keyDetail['ec']['x'] . $keyDetail['ec']['y'];
             }
