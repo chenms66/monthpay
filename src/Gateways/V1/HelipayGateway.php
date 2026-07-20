@@ -5,7 +5,6 @@ namespace BaiGe\MonthPay\Gateways\V1;
 use BaiGe\MonthPay\Exceptions\MonthPayException;
 use BaiGe\MonthPay\Gateways\AbstractGateway;
 use BaiGe\MonthPay\Support\HelipayRequestBuilder;
-use BaiGe\MonthPay\Support\HelipaySM;
 use BaiGe\MonthPay\Support\Utils;
 use BaiGe\MonthPay\Validator\Validator;
 use Exception;
@@ -25,9 +24,6 @@ use Exception;
  */
 class HelipayGateway extends AbstractGateway
 {
-    /** 成功返回码 */
-    const RESP_SUCCESS = '0000';
-
     /** 鉴权绑卡预下单交易类型 */
     const BIZ_TYPE_BIND_CARD_PRE_ORDER = 'QuickPayBindCardPreOrder';
 
@@ -222,12 +218,13 @@ class HelipayGateway extends AbstractGateway
 
         } catch (Exception $e) {
             $this->log->error('绑卡支付预下单失败：' . $e->getMessage());
-            throw new MonthPayException($e->getMessage(), $e->getCode(), $e);
+            throw new MonthPayException($e->getMessage(), $e->getCode(), $e, $this->getChannel());
         }
     }
 
     /**
      * 4.9 绑卡支付
+     * @throws MonthPayException
      */
     public function bindCardPay(array $params)
     {
@@ -241,23 +238,27 @@ class HelipayGateway extends AbstractGateway
                 'P2_customerNumber' => $this->config['mch_id'],
                 'P3_orderId' => $params['num_id'],
                 'P4_timestamp' => date('YmdHis'),
+                'P5_validateCode' => isset($params['code']) ? $params['code'] : '',
                 'signatureType' => 'SM3WITHSM2',
             ];
 
+            $encryptFields = [];
+
+            // 有验证码时才需要 SM4 加密，encryptionKey 仅在有加密字段时才生成
             if (isset($params['code'])) {
-                $fields['P5_validateCode'] = $params['code'];
+                $encryptFields = ['P5_validateCode'];
             }
 
             return $this->builder->buildAndSend(
                 $fields,
-                ['P5_validateCode'],
+                $encryptFields,
                 ['signatureType'],
                 'bindCardPay'
             );
 
         } catch (Exception $e) {
             $this->log->error('绑卡支付失败：' . $e->getMessage());
-            throw new MonthPayException($e->getMessage(), $e->getCode(), $e);
+            throw new MonthPayException($e->getMessage(), $e->getCode(), $e, $this->getChannel());
         }
     }
 
@@ -371,4 +372,5 @@ class HelipayGateway extends AbstractGateway
             throw new MonthPayException($e->getMessage(), $e->getCode(), $e);
         }
     }
+
 }

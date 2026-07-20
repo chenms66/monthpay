@@ -77,7 +77,6 @@ class HelipayRequestBuilder
             $publicKey = HelipaySM::getPublicKeyFromCER($this->config['helipay_public_cert_path']);
             $data['encryptionKey'] = HelipaySM::encrypt($sm4Key, $publicKey);
         }
-
         // SM2签名
         $data['sign'] = HelipaySM::sign(
             $signStr,
@@ -87,7 +86,6 @@ class HelipayRequestBuilder
             ),
             $this->config['sm2_user_id']
         );
-
         return $this->sendAndHandle($data, $action);
     }
 
@@ -141,7 +139,6 @@ class HelipayRequestBuilder
     private function sendAndHandle(array $data, string $action)
     {
         $result = $this->request($data, $this->config['api_url'], $action);
-
         $res = json_decode($result, true);
         if (!is_array($res)) {
             throw new MonthPayException('接口返回格式异常: ' . $result);
@@ -181,7 +178,6 @@ class HelipayRequestBuilder
     private function handleResponse(array $res)
     {
         $this->verifyResponse($res);
-
         $respCode = isset($res['rt2_retCode']) ? $res['rt2_retCode'] : '';
         if ($respCode !== '0000') {
             $msg = isset($res['rt3_retMsg']) ? $res['rt3_retMsg'] : '交易失败';
@@ -202,7 +198,7 @@ class HelipayRequestBuilder
         }
 
         $sign = $res['sign'];
-        $excludeFields = ['sign', 'signatureType', 'smsStatus', 'smsMsg', 'smsConfirm'];
+        $excludeFields = ['sign', 'signatureType', 'smsStatus', 'smsMsg', 'smsConfirm', 'ruleJson', 'receiverFee', 'offlineFee', 'presetSplitAmount'];
 
         $signFields = [];
         foreach ($res as $key => $value) {
