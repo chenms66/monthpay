@@ -46,7 +46,7 @@ class HelipayRequestBuilder
 
         // 有加密字段时生成SM4密钥
         if (!empty($encryptFields)) {
-            $sm4Key = HelipaySM::generateSm4Key();
+            $sm4Key = $this->config['sm4_key'];
             $sm4Iv = $this->config['sm4_iv'];
         }
 
@@ -198,7 +198,7 @@ class HelipayRequestBuilder
         }
 
         $sign = $res['sign'];
-        $excludeFields = ['sign', 'signatureType', 'smsStatus', 'smsMsg', 'smsConfirm', 'ruleJson', 'receiverFee', 'offlineFee', 'presetSplitAmount','unTransId','splittableAmount','payTransId'];
+        $excludeFields = ['sign', 'signatureType', 'smsStatus', 'smsMsg', 'smsConfirm', 'ruleJson', 'receiverFee', 'offlineFee', 'presetSplitAmount','unTransId','splittableAmount','payTransId','smallSumFlag','encryptionKey'];
 
         $signFields = [];
         foreach ($res as $key => $value) {
