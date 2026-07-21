@@ -289,7 +289,7 @@ class HelipayGateway extends AbstractGateway
                 'P9_phone' => $params['t_tel'] ?? '',
                 'P10_bankId' => $params['bank_no'],
                 'P11_onlineCardType' => $params['card_type'] == self::DEBIT_CARD ? 'DEBIT' : 'CREDIT',
-                'P12_serverCallbackUrl' => $this->config['callback'],
+                'P12_serverCallbackUrl' => $this->config['sign_callback'],
                 'P13_bankRdrctToMchUrl' => $this->config['return_url'] ?? '',
                 'signatureType' => 'SM3WITHSM2',
             ];
