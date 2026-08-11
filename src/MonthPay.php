@@ -7,6 +7,7 @@ use BaiGe\MonthPay\Gateways\V1\BankGateway;
 use BaiGe\MonthPay\Gateways\V1\BaofuGateway;
 use BaiGe\MonthPay\Gateways\V1\DxmGateway;
 use BaiGe\MonthPay\Gateways\V1\HelipayGateway;
+use BaiGe\MonthPay\Gateways\V1\KqGateway;
 use BaiGe\MonthPay\Gateways\V1\SuningGateway;
 use BaiGe\MonthPay\Gateways\V1\WechatGateway;
 use BaiGe\MonthPay\Gateways\V1\YeepayGateway;
@@ -43,6 +44,9 @@ class MonthPay
                 break;
             case 'helipay':
                 $this->gateway = new HelipayGateway($config ?? [],$logPath);
+                break;
+            case 'kq':
+                $this->gateway = new KqGateway($config ?? [],$logPath);
                 break;
             default:
                 throw new MonthPayException("渠道不存在");
