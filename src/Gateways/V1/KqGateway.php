@@ -103,7 +103,7 @@ class KqGateway extends AbstractGateway
     public function signApply(array $params)
     {
         Validator::validateRequiredFields($params, [
-            'card_no', 't_name', 't_paper_type', 't_paper_num', 't_tel', 'num_id'
+            'card_no', 't_name', 't_paper_num', 't_tel', 'num_id'
         ]);
 
         $body = [
@@ -112,7 +112,7 @@ class KqGateway extends AbstractGateway
             'customerId' => $params['customer_id'] ?? $params['t_paper_num'],
             'pan' => $params['card_no'],
             'cardHolderName' => $params['t_name'],
-            'idType' => $params['t_paper_type'],
+            'idType' => (isset($params['t_paper_type']) && $params['t_paper_type'] == 1) ? '0' : ($params['t_paper_type'] ?? '0'),
             'cardHolderId' => $params['t_paper_num'],
             'phoneNo' => $params['t_tel'],
             'bindType' => $params['bind_type'] ?? '0',
@@ -356,7 +356,7 @@ class KqGateway extends AbstractGateway
             'terminalId' => $this->config['terminal_id'],
             'customerId' => $params['t_paper_num'],
             'cardHolderName' => $params['t_name'],
-            'idType' => $params['t_paper_type'] ?? '0',
+            'idType' => (isset($params['t_paper_type']) && $params['t_paper_type'] == 1) ? '0' : ($params['t_paper_type'] ?? '0'),
             'cardHolderId' => $params['t_paper_num'],
             'pan' => $params['card_no'] ?? '',
             'phoneNo' => $params['t_tel'] ?? '',
@@ -364,7 +364,7 @@ class KqGateway extends AbstractGateway
             'cardType' => $cardTypeMap[$params['card_type']] ?? '0002',
             'userQueryAgreeFlag' => '1',
             'clbckUrl' => $this->config['return_url'],
-            'tr3Url' => $this->config['pay_callback'],
+            'tr3Url' => $this->config['sign_callback'],
             'bindType' => $params['bind_type'] ?? '',
             'deviceType' => $params['device_type'] ?? '',
             'sourceIp' => $params['source_ip'] ?? '',
