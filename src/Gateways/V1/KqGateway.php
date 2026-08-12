@@ -229,8 +229,8 @@ class KqGateway extends AbstractGateway
      * 报文类型: A9007
      *
      * 必填参数:
-     * - out_trade_no: 退款流水号（作为externalRefNumber）
-     * - orig_ref_number: 原快钱交易号（系统参考号）
+     * - refund_no: 退款流水号（作为externalRefNumber）
+     * - out_trade_no: 原快钱交易号（系统参考号）
      * - refund_amount: 退款金额（元）
      *
      * 可选参数:
@@ -238,12 +238,12 @@ class KqGateway extends AbstractGateway
      */
     public function commonRefund(array $params)
     {
-        Validator::validateRequiredFields($params, ['orig_ref_number', 'refund_amount', 'refund_no']);
+        Validator::validateRequiredFields($params, ['out_trade_no', 'refund_amount', 'refund_no']);
 
         $body = [
             'merchantId' => $this->config['merchant_id'],
             'terminalId' => $this->config['terminal_id'],
-            'origRefNumber' => $params['orig_ref_number'],
+            'origRefNumber' => $params['out_trade_no'],
             'entryTime' => date('YmdHis'),
             'amount' => Utils::yuanToCent($params['refund_amount']),
             'settleMerchantId' => $params['settle_merchant_id'] ?? '',
