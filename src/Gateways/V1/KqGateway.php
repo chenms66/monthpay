@@ -495,7 +495,7 @@ class KqGateway extends AbstractGateway
      * @param array $body 明文请求体
      * @return array ['signedData' => ..., 'envelopedData' => ...]
      */
-    protected function seal(array $body): array
+    public function seal(array $body): array
     {
         $jsonBody = json_encode($body, JSON_UNESCAPED_UNICODE);
         $salt = $this->config['member_code'] . '_' . time() . '_' . mt_rand(1000, 9999);
