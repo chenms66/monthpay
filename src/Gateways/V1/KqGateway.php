@@ -371,6 +371,14 @@ class KqGateway extends AbstractGateway
             'appName' => $params['app_name'] ?? '',
             'reMark' => $params['re_mark'] ?? '',
         ];
+        if(!in_array($params['bank_no'], ['ABC', 'BOC', 'PSBC', 'PAB', 'CITIC', 'CMBC', 'GDB', 'SPDB', 'HXB'])){
+            $body['unionPayData'] = [
+                'errClbckUrl'=>$this->config['return_url'],
+                'userRegTime'=>date('Ymd'),
+                'userLoginMethod'=>'动码',
+                'sourceMacAddr'=>Utils::ip(),
+            ];
+        }
 
         return $this->sendRequest(self::MSG_BANK_SIGN, $body, __FUNCTION__, $params['out_trade_no']);
     }

@@ -292,12 +292,20 @@ class HelipayGateway extends AbstractGateway
                 'P12_serverCallbackUrl' => $this->config['sign_callback'],
                 'P13_bankRdrctToMchUrl' => $this->config['return_url'] ?? '',
                 'signatureType' => 'SM3WITHSM2',
+                'deviceID' => $params['out_trade_no'],
+                'trxTrmInf' => [
+                    'TrxTrmTp'=>'00',
+                    'sourceIP'=>Utils::ip(),
+                    'deviceSystem'=>'3'
+                ],
+                'merUserRegDt' => date('Ymd'),
+                'usrLoginMethod'=>'动码',
             ];
-
+            $fields['trxTrmInf'] = json_encode($fields['trxTrmInf'], JSON_UNESCAPED_UNICODE);
             return $this->builder->buildAndSend(
                 $fields,
                 ['P8_idCardNo', 'P9_phone'],
-                ['signatureType'],
+                ['signatureType','deviceID','trxTrmInf','merUserRegDt','usrLoginMethod'],
                 'bankSign'
             );
 
