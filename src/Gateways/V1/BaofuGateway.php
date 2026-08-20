@@ -224,16 +224,19 @@ class BaofuGateway extends AbstractGateway
             'data_type'    => 'json',
             'data_content' => $encrypted,
         ];
-        $this->logRequest('退费请求报文:', $payload);
+        $this->logRequest('退费请求报文(明文):', $content);
+        $this->logRequest('退费请求报文(密文):', $payload);
 
         $result = Utils::httpCurl($this->config['refund_url'], $payload);
 
-        $this->logResponse('退费返回报文:',$result);
+        $this->logResponse('退费返回报文(密文):', $result);
 
         $decrypted = RSAUtil::decryptByCERFile(
             $result,
             $this->config['public_key']
         );
+
+        $this->logResponse('退费返回报文(明文):', $decrypted);
 
         return json_decode($decrypted, true);
     }

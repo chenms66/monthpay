@@ -15,14 +15,20 @@ abstract class AbstractGateway
         $this->log = new LogService($channel, $logPath);
     }
 
-    protected function logRequest(string $action, array $params)
+    protected function logRequest(string $action, $params)
     {
-        $this->log->info("请求 {$action} 参数: " . json_encode($params, 256 | JSON_INVALID_UTF8_SUBSTITUTE));
+        $logStr = is_array($params)
+            ? json_encode($params, 256 | JSON_INVALID_UTF8_SUBSTITUTE)
+            : (is_string($params) ? $params : var_export($params, true));
+        $this->log->info("请求 {$action} 参数: " . $logStr);
     }
 
     protected function logResponse(string $action, $response)
     {
-        $this->log->info("请求 {$action} 返回: " . var_export($response, true));
+        $logStr = is_array($response)
+            ? json_encode($response, 256 | JSON_INVALID_UTF8_SUBSTITUTE)
+            : (is_string($response) ? $response : var_export($response, true));
+        $this->log->info("请求 {$action} 返回: " . $logStr);
     }
 
     abstract public function h5Sign(array $params);
