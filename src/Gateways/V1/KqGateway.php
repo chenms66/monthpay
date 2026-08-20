@@ -2,6 +2,7 @@
 
 namespace BaiGe\MonthPay\Gateways\V1;
 
+use BaiGe\MonthPay\Config\BizType;
 use BaiGe\MonthPay\Exceptions\MonthPayException;
 use BaiGe\MonthPay\Gateways\AbstractGateway;
 use BaiGe\MonthPay\Support\Utils;
@@ -371,7 +372,7 @@ class KqGateway extends AbstractGateway
             'appName' => $params['app_name'] ?? '',
             'reMark' => $params['re_mark'] ?? '',
         ];
-        if(!in_array($params['bank_no'], ['ABC', 'BOC', 'PSBC', 'PAB', 'CITIC', 'CMBC', 'GDB', 'SPDB', 'HXB'])){
+        if(isset($params['biz_type']) && $params['biz_type'] == BizType::UNION_PAY){
             $body['unionPayData'] = [
                 'errClbckUrl'=>$this->config['return_url'],
                 'userRegTime'=>date('Ymd'),

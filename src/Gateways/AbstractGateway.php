@@ -17,7 +17,7 @@ abstract class AbstractGateway
 
     protected function logRequest(string $action, array $params)
     {
-        $this->log->info("请求 {$action} 参数: " . json_encode($params, 256));
+        $this->log->info("请求 {$action} 参数: " . json_encode($params, 256 | JSON_INVALID_UTF8_SUBSTITUTE));
     }
 
     protected function logResponse(string $action, $response)
