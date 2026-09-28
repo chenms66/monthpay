@@ -384,7 +384,7 @@ class SuningGateway extends AbstractGateway
         $respCode = isset($res['responseCode']) ? $res['responseCode'] : '';
         if ($respCode !== self::RESP_SUCCESS) {
             $msg = isset($res['responseMsg']) ? $res['responseMsg'] : '交易失败';
-            throw new MonthPayException($msg, '-1', null, $respCode);
+            throw new MonthPayException($msg, '-1', null, $respCode, $res);
         }
 
         return $res;

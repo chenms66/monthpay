@@ -197,7 +197,7 @@ class HelipayGateway extends AbstractGateway
                 'P14_period' => $params['period'] ?? '',
                 'P15_periodUnit' => $params['period_unit'] ?? '',
                 'P16_serverCallbackUrl' => $this->config['callback'],
-                'sendValidateCode' => isset($params['send_sms']) ? $params['send_sms'] : 'TRUE',
+                'sendValidateCode' => isset($params['send_sms']) ? $params['send_sms'] : 'FALSE',
                 'goodsQuantity' => '1',
                 'userAccount' => $params['t_tel'],
                 'appType' => $this->config['app_type'] ?? 'OTHER',
@@ -260,7 +260,8 @@ class HelipayGateway extends AbstractGateway
         } catch (Exception $e) {
             $this->log->error('绑卡支付失败：' . $e->getMessage());
             $channelCode = $e instanceof MonthPayException ? $e->getChannelCode() : null;
-            throw new MonthPayException($e->getMessage(), $e->getCode(), $e, $channelCode);
+            $response    = $e instanceof MonthPayException ? $e->getResponse() : null;
+            throw new MonthPayException($e->getMessage(), $e->getCode(), $e, $channelCode, $response);
         }
     }
 
@@ -379,7 +380,9 @@ class HelipayGateway extends AbstractGateway
 
         } catch (Exception $e) {
             $this->log->error('快捷退款失败：' . $e->getMessage());
-            throw new MonthPayException($e->getMessage(), $e->getCode(), $e);
+            $channelCode = $e instanceof MonthPayException ? $e->getChannelCode() : null;
+            $response    = $e instanceof MonthPayException ? $e->getResponse() : null;
+            throw new MonthPayException($e->getMessage(), $e->getCode(), $e, $channelCode, $response);
         }
     }
 

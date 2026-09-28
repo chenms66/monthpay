@@ -6,6 +6,7 @@ use BaiGe\MonthPay\Exceptions\MonthPayException;
 use BaiGe\MonthPay\Gateways\V1\BankGateway;
 use BaiGe\MonthPay\Gateways\V1\BaofuGateway;
 use BaiGe\MonthPay\Gateways\V1\DxmGateway;
+use BaiGe\MonthPay\Gateways\V1\UnionpayGateway;
 use BaiGe\MonthPay\Gateways\V1\HelipayGateway;
 use BaiGe\MonthPay\Gateways\V1\KqGateway;
 use BaiGe\MonthPay\Gateways\V1\SuningGateway;
@@ -47,6 +48,9 @@ class MonthPay
                 break;
             case 'kq':
                 $this->gateway = new KqGateway($config ?? [],$logPath);
+                break;
+            case 'unionpay':
+                $this->gateway = new UnionpayGateway($config ?? [],$logPath);
                 break;
             default:
                 throw new MonthPayException("渠道不存在");
@@ -244,17 +248,20 @@ class MonthPay
     protected function formatError($message, $exception = null)
     {
         $data = null;
-        
+
         if ($exception instanceof MonthPayException && $exception->getChannelCode()) {
+            $response = $exception->getResponse();
             $data = [
-                'channel_code' => $exception->getChannelCode()
+                'channel_code' => $exception->getChannelCode(),
+                'msg'          => $message,
+                'response'     => !empty($response) ? $response : null
             ];
         }
-        
+
         return [
             'result' => -1,
-            'msg' => $message,
-            'data' => $data
+            'msg'    => $message,
+            'data'   => $data
         ];
     }
 
@@ -287,6 +294,24 @@ class MonthPay
     {
         try {
             $result = $this->gateway->resendSms($params);
+            return $this->formatResponse($result);
+        } catch (MonthPayException $e) {
+            return $this->formatError($e->getMessage(), $e);
+        }
+    }
+
+    /**
+     * 智能选卡交易接口（OPEN-ACCESS-TOKEN）
+     *
+     * @param array $params
+     *   必填：userId / orgCusSendID / protocolNo / certNo
+     *   选填：certType（默认 01）
+     * @return array
+     */
+    public function smartCardSelect(array $params): array
+    {
+        try {
+            $result = $this->gateway->smartCardSelect($params);
             return $this->formatResponse($result);
         } catch (MonthPayException $e) {
             return $this->formatError($e->getMessage(), $e);

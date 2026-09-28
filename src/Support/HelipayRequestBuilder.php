@@ -181,7 +181,7 @@ class HelipayRequestBuilder
         $respCode = isset($res['rt2_retCode']) ? $res['rt2_retCode'] : '';
         if ($respCode !== '0000') {
             $msg = isset($res['rt3_retMsg']) ? $res['rt3_retMsg'] : '交易失败';
-            throw new MonthPayException($msg, -1, null, $respCode);
+            throw new MonthPayException($msg, -1, null, $respCode, $res);
         }
     }
 

@@ -623,7 +623,7 @@ class YeepayGateway extends AbstractGateway
             $respCode = $res['result']['code'];
             if ($respCode !== self::CODE_SUCCESS && $respCode !== self::TOKEN_SUCCESS && $respCode !== self::PAY_CONFIRM) {
                 $msg = $res['result']['message'] ?? $res['result']['description'] ?? '交易失败';
-                throw new MonthPayException($msg, '-1', null, $respCode);
+                throw new MonthPayException($msg, '-1', null, $respCode, $res);
             }
         }
         return $res['result'];

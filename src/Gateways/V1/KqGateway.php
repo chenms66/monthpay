@@ -363,7 +363,6 @@ class KqGateway extends AbstractGateway
             'phoneNo' => $params['t_tel'] ?? '',
             'bankId' => $params['bank_no'] ?? '',
             'cardType' => $cardTypeMap[$params['card_type']] ?? '0002',
-            'userQueryAgreeFlag' => '1',
             'clbckUrl' => $this->config['return_url'],
             'tr3Url' => $this->config['sign_callback'],
             'bindType' => $params['bind_type'] ?? '',
@@ -487,7 +486,8 @@ class KqGateway extends AbstractGateway
                 $decryptArr['bizResponseMessage'] ?? '交易失败',
                 '-1',
                 null,
-                $respCode
+                $respCode,
+                $decryptArr
             );
         }
         return $decryptArr;
