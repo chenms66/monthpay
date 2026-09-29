@@ -681,6 +681,19 @@ class UnionpayGateway extends AbstractGateway
     }
 
     /**
+     * @throws MonthPayException
+     */
+    public function silentSign(array $params): array
+    {
+        try {
+            return $this->querySign($params);
+        } catch (Exception $e) {
+            $channelCode = $e instanceof MonthPayException ? $e->getChannelCode() : null;
+            $response    = $e instanceof MonthPayException ? $e->getResponse() : null;
+            throw new MonthPayException($e->getMessage(), $e->getCode(), $e, $channelCode, $response);
+        }
+    }
+    /**
      * 智能选卡 respCode 转语义字符串（文档 §3.3 响应字段说明）。
      *
      * @param string|null $respCode
