@@ -546,12 +546,13 @@ class UnionpayRequestBuilder
         $plainJson  = json_encode($payload, JSON_UNESCAPED_UNICODE);
         $cipherB64  = $this->aesEncryptEcbBase64($plainJson);   // 注：远端解密服务入参也是 AES 包裹
         $this->log->info('SM4 响应解密（idx 列表）: ' . json_encode(
-            array_map(function ($p) { return $p['idxValue']; }, $payload),
+            array_map(function ($p) { return $p['idxValue']; }, $pending),
             JSON_UNESCAPED_UNICODE
         ));
 
         // 3) POST 远端 SM4 解密服务
         $rawResp = self::httpPostRaw($decryptUrl, $cipherB64);
+        $this->log->info('SM4 远端解密响应：' . $rawResp);
         $respData = json_decode($rawResp, true);
         if (!is_array($respData) || !isset($respData['code']) || (int)$respData['code'] !== 200 || !isset($respData['data']) || !is_array($respData['data'])) {
             throw new MonthPayException('SM4 远端解密失败：' . $rawResp);

@@ -163,11 +163,13 @@ class UnionpayGateway extends AbstractGateway
             $signInfo = [
                 'termType'         => $params['termType'] ?? '08',
                 'sourceIp'         => $params['sourceIp'] ?? Utils::ip(),
-                'devId'            => $_SERVER['HTTP_USER_AGENT'] ?? '未知',
+                'devId' => !empty($_SERVER['HTTP_USER_AGENT'])
+                    ? substr($_SERVER['HTTP_USER_AGENT'], 0, 129)
+                    : '未知',
                 'deviceSystem'     => $params['deviceSystem'] ?? self::DEVICE_OTHER,
                 'bankId'           => $params['bank_no'],
                 'bankName'         => $params['bank_name'],
-                'acctType'         => $params['card_type'] == self::DEBIT_CARD ? '00':'01',
+                'acctType'         => $params['card_type'] == self::DEBIT_CARD ? '01':'02',
                 'userNameIdx'      => 'A001',
                 'userNameEnc'      => '',
                 'certType'         => '01',
@@ -217,14 +219,14 @@ class UnionpayGateway extends AbstractGateway
      * signStatus = "Y"（合规要求：总是重新签约）
      *
      * @param array $params
-     *   必填：card_no / cert_type / t_paper_num / t_name / tel /
+     *   必填：card_no / t_paper_type / t_paper_num / t_name / tel /
      *         bank_no / bank_name
      *   选填：acct_type（默认 '00'）/ sign_status（默认 'Y'）
      */
     public function captchaGenerate(array $params)
     {
         Validator::validateRequiredFields($params, [
-            'card_no', 'cert_type', 't_paper_num', 't_name', 't_tel',
+            'card_no', 't_paper_type', 't_paper_num', 't_name', 't_tel',
 //            'bank_no', 'bank_name',
         ]);
 
@@ -233,7 +235,7 @@ class UnionpayGateway extends AbstractGateway
                 'acctType'    => $params['acct_type'] ?? self::ACCT_TYPE_SMS_DEBIT,
                 'cardNoEnc'   => '', 'cardNoIdx'   => 'B001',
                 'userNameEnc' => '', 'userNameIdx' => 'A001',
-                'certType'    => $params['cert_type'],
+                'certType'    => str_pad($params['t_paper_type'], 2, '0', STR_PAD_LEFT),
                 'certNoEnc'   => '', 'certNoIdx'   => 'C001',
                 'mobileEnc'   => '', 'mobileIdx'   => 'D001',
 //                'bankId'      => $params['bank_no'],
@@ -277,13 +279,13 @@ class UnionpayGateway extends AbstractGateway
      * msgType = sign
      *
      * @param array $params
-     *   必填：card_no / cert_type / t_paper_num / t_name / tel / code
+     *   必填：card_no / t_paper_type / t_paper_num / t_name / tel / code
      *   选填：associate_info / associate_ssn（captcha 返回）
      */
     public function signingEndpoint(array $params)
     {
         Validator::validateRequiredFields($params, [
-            'card_no', 'cert_type', 't_paper_num', 't_name', 't_tel',
+            'card_no', 't_paper_type', 't_paper_num', 't_name', 't_tel',
             'code',
         ]);
 
@@ -291,7 +293,7 @@ class UnionpayGateway extends AbstractGateway
             $signInfo = [
                 'cardNoEnc'         => '', 'cardNoIdx'         => 'B001',
                 'userNameEnc'       => '', 'userNameIdx'       => 'A001',
-                'certType'          => $params['cert_type'],
+                'certType'          => str_pad($params['t_paper_type'], 2, '0', STR_PAD_LEFT),
                 'certNoEnc'         => '', 'certNoIdx'         => 'C001',
                 'mobileEnc'         => '', 'mobileIdx'         => 'D001',
                 'smsVerifyCodeEnc'  => '', 'smsVerifyCodeIdx'  => 'E001',
@@ -394,13 +396,13 @@ class UnionpayGateway extends AbstractGateway
     public function queryCardPullResult(array $params)
     {
         Validator::validateRequiredFields($params, [
-            'relate_ssn', 'tran_time',
+            'relateSsn', 'tranTm',
         ]);
 
         try {
             $signInfo = [
-                'relateSsn' => $params['relate_ssn'],
-                'tranTm'    => $params['tran_time'],
+                'relateSsn' => $params['relateSsn'],
+                'tranTm'    => $params['tranTm'],
             ];
 
             $data = [
@@ -435,13 +437,13 @@ class UnionpayGateway extends AbstractGateway
      * msgType = sign/cancel
      *
      * @param array $params
-     *   必填：trans_time / card_no / cert_type / t_paper_num / t_name
+     *   必填：trans_time / card_no / t_paper_type / t_paper_num / t_name
      */
     public function cancelSign(array $params)
     {
         Validator::validateRequiredFields($params, [
             'trans_time', 'card_no',
-            'cert_type', 't_paper_num', 't_name',
+            't_paper_type', 't_paper_num', 't_name',
         ]);
 
         try {
@@ -450,7 +452,7 @@ class UnionpayGateway extends AbstractGateway
                 'cardNoEnc'     => '', 'cardNoIdx' => 'B001',
                 'mobileIdx'     => 'D001',
                 'userNameIdx'   => 'A001',
-                'certType'      => $params['cert_type'],
+                'certType'      => str_pad($params['t_paper_type'], 2, '0', STR_PAD_LEFT),
                 'certNoEnc'     => '', 'certNoIdx' => 'C001',
             ];
 
@@ -554,7 +556,7 @@ class UnionpayGateway extends AbstractGateway
                 'instMid'          => $params['instMid'] ?? 'TREATPAY',
                 'merOrderId'       => $params['out_trade_no'],
                 'bankCardNo'       => base64_encode((string)$params['card_no']),
-                'totalAmount'      => (string)$params['expect_money'],
+                'totalAmount'      => bcmul($params['expect_money'],100),
                 'signNo'           => base64_encode((string)$params['agreement_no']),
                 'termType'         => $params['termType'] ?? 'PHONE',
                 'bizType'          => $params['bizType'] ?? '120004',//保险选购
@@ -637,7 +639,7 @@ class UnionpayGateway extends AbstractGateway
      *
      * @param array $params
      *   必填：user_id / org_send_id / protocol_no / t_paper_num（明文，会内部 SHA256）
-     *   选填：cert_type（默认 01，居民身份证）
+     *   选填：t_paper_type（默认 01，居民身份证）
      */
     public function smartCardSelect(array $params)
     {
@@ -645,9 +647,9 @@ class UnionpayGateway extends AbstractGateway
             'user_id', 'org_send_id', 'protocol_no', 't_paper_num',
         ]);
 
-        $certType = $params['cert_type'] ?? '01';
+        $certType = str_pad($params['t_paper_type'] ?? '01', 2, '0', STR_PAD_LEFT);
         if (!in_array($certType, ['01', '02', '03', '04', '05'], true)) {
-            throw new MonthPayException("cert_type 取值非法：{$certType}，应为 01-05");
+            throw new MonthPayException("t_paper_type 取值非法：{$certType}，应为 01-05");
         }
         $certNo = (string)$params['t_paper_num'];
         if (!preg_match('/^\d{15}(\d{2}[0-9Xx])?$/', $certNo)) {
