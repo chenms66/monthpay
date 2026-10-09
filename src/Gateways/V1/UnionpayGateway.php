@@ -136,21 +136,22 @@ class UnionpayGateway extends AbstractGateway
     public function deductMoney(array $params) { return $this->quickPay($params); }
 
     // ================================================================
-    // 3.3.2.7 拉卡（含多绑）
+    // 3.1 发起签约（一键绑卡）
     // ================================================================
 
     /**
-     * 3.3.2.7 拉卡（含多绑）
+     * 3.1 发起签约（一键绑卡）
      *
-     * msgType = card/pull
+     * msgType = sign
      * 鉴权：OPEN-BODY-SIG
-     * 接口：POST {sign_url}（默认 ginkgo-auto-insurance / dtums / qmf / order）
+     * 接口：POST {sign_url}
      *
-     * 请求字段见文档 §5.2 字段说明。报文体**不**带 sign 字段。
+     * 请求字段见文档 §3.1 参数说明。报文体**不**带 sign 字段。
      *
      * @param array $params
-     *   必填：num_id / bank_no / bank_name / card_type /
+     *   必填：bank_no / bank_name / card_type /
      *         t_name / t_paper_type / t_tel / t_paper_num
+     *   选填：sign_callback（回调地址）
      */
     public function banksign(array $params)
     {
@@ -161,34 +162,24 @@ class UnionpayGateway extends AbstractGateway
 
         try {
             $signInfo = [
-                'termType'         => $params['termType'] ?? '08',
-                'sourceIp'         => $params['sourceIp'] ?? Utils::ip(),
-                'devId' => !empty($_SERVER['HTTP_USER_AGENT'])
-                    ? substr($_SERVER['HTTP_USER_AGENT'], 0, 129)
-                    : '未知',
-                'deviceSystem'     => $params['deviceSystem'] ?? self::DEVICE_OTHER,
                 'bankId'           => $params['bank_no'],
                 'bankName'         => $params['bank_name'],
-                'acctType'         => $params['card_type'] == self::DEBIT_CARD ? '01':'02',
+                'bankAcctType'     => $params['card_type'] == self::DEBIT_CARD ? '00' : '01',
                 'userNameIdx'      => 'A001',
                 'userNameEnc'      => '',
-                'certType'         => '01',
+                'certType'         => str_pad($params['t_paper_type'], 2, '0', STR_PAD_LEFT),
                 'certNoIdx'        => 'C001',
                 'certNoEnc'        => '',
                 'mobileIdx'        => 'D001',
                 'mobileEnc'        => '',
-                'successReturnUrl' => $this->config['return_url'],
-                'failReturnUrl'    => $this->config['return_url'],
-                'orderId'          => $params['num_id'],
-                'userRegisterDate' => date('Ymd'),
-                'userLoginType'    => $params['userLoginType'] ??'10000000',
+                'callBackUrl'      => $this->config['sign_callback'],
             ];
 
             $data = [
                 'prodCode' => self::PROD_CODE,
                 'signChnl' => $this->config['signChnl'] ?? self::SIGN_CHNL_UNIONPAY,
+                'msgType'  => 'sign',
                 'signInfo' => $signInfo,
-                'msgType'  => self::MSG_CARD_PULL,
             ];
 
             $encryptMap = [
@@ -203,7 +194,7 @@ class UnionpayGateway extends AbstractGateway
                 $this->resolveApiUrl(self::URL_SIGN)
             );
         } catch (Exception $e) {
-            $this->log->error('拉卡失败：' . $e->getMessage());
+            $this->log->error('发起签约失败：' . $e->getMessage());
             throw new MonthPayException($e->getMessage(), $e->getCode(), $e);
         }
     }
@@ -345,29 +336,40 @@ class UnionpayGateway extends AbstractGateway
      * msgType = sign-info/query
      *
      * @param array $params
-     *   必填：card_no
+     *   必填：card_no 或 cardNoEnc（二选一）
      */
     public function querySign(array $params)
     {
-        Validator::validateRequiredFields($params, [
-            'card_no',
-        ]);
+        // card_no 和 platSsn 至少提供一个
+        if (empty($params['card_no']) && empty($params['platSsn'])) {
+            throw new MonthPayException('card_no 和 platSsn 至少提供一个');
+        }
 
         try {
-            $signInfo = [
-                'cardNoEnc' => '',
-                'cardNoIdx' => 'B001',
-
-            ];
-
+            if(!empty($params['card_no'])){
+                $signInfo = [
+                    'cardNoEnc' => '',
+                    'cardNoIdx' => 'B001',
+                    'transDateTime' => date('YmdHis'),
+                ];
+            }else{
+                $signInfo = [
+                    'platSsn' => $params['platSsn'],
+                ];
+            }
             $data = [
                 'prodCode' => self::PROD_CODE,
-                'signChnl' => $this->config['signChnl'] ?? self::SIGN_CHNL_UNIONPAY,
+                'signChnl' => empty($params['platSsn']) ? self::SIGN_CHNL_UNIONPAY : 'EPCC_GATE_PERSON',
                 'signInfo' => $signInfo,
                 'msgType'  => self::MSG_SIGN_QUERY,
             ];
 
-            $encryptMap['cardNoEnc'] = ['idx' => 'B001', 'value' => $params['card_no']];
+            $encryptMap = [];
+            // 如果提供了 card_no，需要加密
+            if (!empty($params['card_no'])) {
+                $encryptMap['cardNoEnc'] = ['idx' => 'B001', 'value' => $params['card_no']];
+            }
+
             return $this->builder->sendWithBodySig(
                 $data,
                 $encryptMap,
@@ -595,7 +597,7 @@ class UnionpayGateway extends AbstractGateway
      *   选填：request_time（默认当前时间）/ mid / tid / instMid /
      *         termType（默认 'PHONE'）
      */
-    public function refund(array $params)
+    public function commonRefund(array $params)
     {
         Validator::validateRequiredFields($params, [
             'out_trade_no', 'refund_amount',
@@ -609,7 +611,7 @@ class UnionpayGateway extends AbstractGateway
                 'instMid'          => $params['instMid'] ?? 'TREATPAY',
                 'merOrderId'       => $params['out_trade_no'],
                 'msgType'          => self::MSG_REFUND,
-                'refundAmount'     => (string)$params['refund_amount'],
+                'refundAmount'     => bcmul($params['refund_amount'],100),
                 'termType'         => $params['termType'] ?? 'PHONE',
             ];
 

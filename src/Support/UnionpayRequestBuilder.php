@@ -502,7 +502,7 @@ class UnionpayRequestBuilder
         if ($decryptResponse
             || (isset($res['encryption']) && (string)$res['encryption'] === '1')
         ) {
-            $this->applySm4ResponseDecryption($res);
+            $this->applySm4ResponseDecryption($res, $action);
         }
 
         // 快捷支付同步响应里 status=TRADE_SUCCESS 才算成功；TRADE_CLOSED/UNKNOWN 由调用方继续走 notify
@@ -518,7 +518,7 @@ class UnionpayRequestBuilder
      *
      * 配置要求：sm4_aes_key + sm4_decrypt_url 必须配齐，否则抛错。
      */
-    private function applySm4ResponseDecryption(array &$res): void
+    private function applySm4ResponseDecryption(array &$res, string $action = ''): void
     {
         $aesKey     = (string)($this->config['sm4_aes_key']     ?? '');
         $decryptUrl = (string)($this->config['sm4_decrypt_url'] ?? self::DEFAULT_SM4_DECRYPT_URL);
@@ -532,7 +532,7 @@ class UnionpayRequestBuilder
         //    限定只解 顶层 或 signInfo 子树中"以 Enc 结尾、对应有 XxxIdx"的字段；
         //    xxxIdx 仅作 SM4 加密 key 用，不回写到响应。
         $pending = [];
-        $this->collectEncryptedPairs($res, '', $pending);
+        $this->collectEncryptedPairs($res, '', $pending, $action);
 
         if (empty($pending)) {
             return;
@@ -584,7 +584,7 @@ class UnionpayRequestBuilder
      *   - 优先 xxxEncIdx（如 userNameEncIdx = A001）
      *   - 回退 xxxIdx    （如 cardNoIdx    = B001，旧接口约定）
      */
-    private function collectEncryptedPairs(array &$node, string $path, array &$pending): void
+    private function collectEncryptedPairs(array &$node, string $path, array &$pending, string $action = ''): void
     {
         $allowedRoots = ['', 'signInfo', 'signResult'];
         if ($path !== '' && !in_array($path, $allowedRoots, true)) {
@@ -596,6 +596,10 @@ class UnionpayRequestBuilder
                 continue;
             }
             if (substr($key, -3) !== 'Enc') {
+                continue;
+            }
+            // cardPullQuery 接口返回的 cardNoEnc 不解密
+            if ($action === 'cardPullQuery' && $key === 'cardNoEnc') {
                 continue;
             }
             if (!is_string($value) || $value === '') {
@@ -622,10 +626,10 @@ class UnionpayRequestBuilder
         }
         // 递归 signInfo / signResult 子树
         if (isset($node['signInfo']) && is_array($node['signInfo'])) {
-            $this->collectEncryptedPairs($node['signInfo'], 'signInfo', $pending);
+            $this->collectEncryptedPairs($node['signInfo'], 'signInfo', $pending, $action);
         }
         if (isset($node['signResult']) && is_array($node['signResult'])) {
-            $this->collectEncryptedPairs($node['signResult'], 'signResult', $pending);
+            $this->collectEncryptedPairs($node['signResult'], 'signResult', $pending, $action);
         }
     }
 
