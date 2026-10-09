@@ -177,7 +177,7 @@ class UnionpayGateway extends AbstractGateway
                 'certNoEnc'        => '',
                 'mobileIdx'        => 'D001',
                 'mobileEnc'        => '',
-                'successReturnUrl' => $this->config['return_url'].$params['num_id'],
+                'successReturnUrl' => $this->config['return_url'],
                 'failReturnUrl'    => $this->config['return_url'],
                 'orderId'          => $params['num_id'],
                 'userRegisterDate' => date('Ymd'),
@@ -246,7 +246,7 @@ class UnionpayGateway extends AbstractGateway
                 'prodCode'   => self::PROD_CODE,
                 'signChnl'   => $this->config['signChnl'] ?? self::SIGN_CHNL_UNIONPAY,
                 'signInfo'   => $signInfo,
-                'signStatus' => $params['sign_status'] ?? 'N',
+                'signStatus' => $params['sign_status'] ?? 'Y',
                 'msgType'    => self::MSG_CAPTCHA_GENERATE,
             ];
 
@@ -261,7 +261,10 @@ class UnionpayGateway extends AbstractGateway
                 $data,
                 $encryptMap,
                 'captchaGenerate',
-                $this->resolveApiUrl(self::URL_SIGN)
+                $this->resolveApiUrl(self::URL_SIGN),
+                null,
+                null,
+                true
             );
         } catch (Exception $e) {
             $this->log->error('签约短信验证码生成失败：' . $e->getMessage());
@@ -297,8 +300,8 @@ class UnionpayGateway extends AbstractGateway
                 'certNoEnc'         => '', 'certNoIdx'         => 'C001',
                 'mobileEnc'         => '', 'mobileIdx'         => 'D001',
                 'smsVerifyCodeEnc'  => '', 'smsVerifyCodeIdx'  => 'E001',
-                'associateInfo'     => $params['associate_info'] ?? '',
-                'associateTermSsn'  => $params['associate_ssn'] ?? '',
+                'associateInfo'     => $params['sign_response']['signResult']['associateInfo'] ?? '',
+                'associateTermSsn'  => $params['sign_response']['signResult']['associateTermSsn'] ?? '',
             ];
 
             $data = [

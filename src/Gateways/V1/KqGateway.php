@@ -59,7 +59,20 @@ class KqGateway extends AbstractGateway
         // 统一转为正斜杠，OpenSSL 内部 fopen 不支持反斜杠
         $this->tempDir = str_replace('\\', '/', $this->tempDir);
         if (!is_dir($this->tempDir)) {
-            mkdir($this->tempDir, 0777, true);
+            // 重试机制：防止首次创建时的竞态条件
+            $maxRetries = 3;
+            $retryCount = 0;
+            while (!is_dir($this->tempDir) && $retryCount < $maxRetries) {
+                if (@mkdir($this->tempDir, 0777, true)) {
+                    break;
+                }
+                $retryCount++;
+                usleep(10000); // 10ms
+            }
+            // 最终验证
+            if (!is_dir($this->tempDir) || !is_writable($this->tempDir)) {
+                throw new MonthPayException("临时目录创建失败或无写入权限: {$this->tempDir}");
+            }
         }
     }
 
@@ -507,7 +520,7 @@ class KqGateway extends AbstractGateway
     public function seal(array $body): array
     {
         $jsonBody = json_encode($body, JSON_UNESCAPED_UNICODE);
-        $salt = $this->config['member_code'] . '_' . time() . '_' . mt_rand(1000, 9999);
+        $salt = $this->config['member_code'] . '_' . getmypid() . '_' . microtime(true) . '_' . mt_rand(100000, 999999);
 
         $signedData = $this->getSignedData($jsonBody, $salt);
         $envelopedData = $this->getEnvelopedData($jsonBody, $salt);
@@ -533,7 +546,7 @@ class KqGateway extends AbstractGateway
      */
     public function unseal(string $signedData, string $envelopedData): string
     {
-        $salt = $this->config['member_code'] . '_' . time() . '_' . mt_rand(1000, 9999);
+        $salt = $this->config['member_code'] . '_' . getmypid() . '_' . microtime(true) . '_' . mt_rand(100000, 999999);
         $encPath = $this->tempDir . 'respEnc_' . $salt . '.txt';
         $decPath = $this->tempDir . 'respDec_' . $salt . '.txt';
         $signPath = $this->tempDir . 'respSign_' . $salt . '.txt';
@@ -623,6 +636,9 @@ class KqGateway extends AbstractGateway
         $encodePath = $this->tempDir . 'endata_' . $salt . '.txt';
 
         try {
+            if (!is_dir($this->tempDir)) {
+                @mkdir($this->tempDir, 0777, true);
+            }
             // 写入明文到临时文件
             file_put_contents($dataPath, $originalData);
             $fp = fopen($encodePath, "wb");
@@ -652,7 +668,16 @@ class KqGateway extends AbstractGateway
         $signPath = $this->tempDir . 'signdata_' . $salt . '.txt';
 
         try {
-            file_put_contents($dataPath, $originalData);
+            // 确保临时目录存在（防止并发时目录被其他进程清理）
+            if (!is_dir($this->tempDir)) {
+                @mkdir($this->tempDir, 0777, true);
+            }
+
+            $result = file_put_contents($dataPath, $originalData);
+            if ($result === false) {
+                throw new MonthPayException("无法写入临时文件: {$dataPath}");
+            }
+
             $fp = fopen($signPath, "wb");
             if ($fp === false) {
                 throw new MonthPayException("Unable to open file: {$signPath}");
@@ -660,13 +685,23 @@ class KqGateway extends AbstractGateway
             fclose($fp);
 
             $certAndKey = $this->getMerchantCertAndKey();
-            openssl_pkcs7_sign(
+
+            // 验证输入文件存在
+            if (!file_exists($dataPath)) {
+                throw new MonthPayException("签名输入文件不存在: {$dataPath}");
+            }
+
+            $signResult = openssl_pkcs7_sign(
                 $dataPath, $signPath,
                 $certAndKey['cert'],
                 $certAndKey['pkey'],
                 [],
                 PKCS7_BINARY
             );
+
+            if ($signResult === false) {
+                throw new MonthPayException("PKCS7签名失败: " . openssl_error_string());
+            }
 
             // 读取签名结果，去除SMIME头（前186字符），提取纯Base64签名
             $signData = file_get_contents($signPath);
@@ -687,6 +722,9 @@ class KqGateway extends AbstractGateway
         $decPath = $this->tempDir . 'respDec_' . $salt . '.txt';
 
         try {
+            if (!is_dir($this->tempDir)) {
+                @mkdir($this->tempDir, 0777, true);
+            }
             // SMIME格式封装，注意需要三个换行（与 DEMO 一致，使用实际换行符）
             $txt = "MIME-Version: 1.0
 Content-Disposition: attachment; filename=\"smime.p7m\"
@@ -733,6 +771,9 @@ Content-Transfer-Encoding: base64" . "\n\n\n" . $envelopedData;
         $decPath = $this->tempDir . 'respDec_' . $salt . '.txt';
 
         try {
+            if (!is_dir($this->tempDir)) {
+                @mkdir($this->tempDir, 0777, true);
+            }
             if (!file_exists($decPath)) {
                 $this->log->error('验签失败：解密文件不存在: ' . $decPath);
                 return false;

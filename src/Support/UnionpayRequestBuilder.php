@@ -46,8 +46,8 @@ class UnionpayRequestBuilder
     const NUMERIC_CHARS = '0123456789';
 
     /** 默认 SM4 加解密远端服务（AES-256-ECB 包裹的密文 hex 数组） */
-    const DEFAULT_SM4_ENCRYPT_URL = 'https://sm4.baigebaodev.com/api/sm4/encrypt';
-    const DEFAULT_SM4_DECRYPT_URL = 'https://sm4.baigebaodev.com/api/sm4/decrypt';
+    const DEFAULT_SM4_ENCRYPT_URL = 'https://sm4.baigebao.com/api/sm4/encrypt';
+    const DEFAULT_SM4_DECRYPT_URL = 'https://sm4.baigebao.com/api/sm4/decrypt';
 
     /** @var array */
     private $config;
@@ -181,8 +181,8 @@ class UnionpayRequestBuilder
         ?string $appKey = null,
         bool $decryptResponse = false
     ): array {
-        $appId  = $appId  ?? (string)($this->config['app_id']  ?? '');
-        $appKey = $appKey ?? (string)($this->config['app_key'] ?? '');
+        $appId  = $appId  ?? (string)($this->config['pay_app_id']  ?? '');
+        $appKey = $appKey ?? (string)($this->config['pay_app_key'] ?? '');
         if ($appId === '' || $appKey === '') {
             throw new MonthPayException('OPEN-BODY-SIG 鉴权缺少 appId/appKey');
         }
