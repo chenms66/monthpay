@@ -172,12 +172,12 @@ class UnionpayGateway extends AbstractGateway
                 'certNoEnc'        => '',
                 'mobileIdx'        => 'D001',
                 'mobileEnc'        => '',
-                'callBackUrl'      => $this->config['sign_callback'],
+                'callBackUrl'      => $this->config['return_url'],
             ];
 
             $data = [
                 'prodCode' => self::PROD_CODE,
-                'signChnl' => $this->config['signChnl'] ?? self::SIGN_CHNL_UNIONPAY,
+                'signChnl' => 'EPCC_GATE_PERSON',
                 'msgType'  => 'sign',
                 'signInfo' => $signInfo,
             ];
