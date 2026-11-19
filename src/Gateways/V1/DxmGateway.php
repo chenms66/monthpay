@@ -239,7 +239,30 @@ class DxmGateway extends AbstractGateway
         $this->logResponse($action, $result);
         $res = json_decode($result,true);
 
-        if (!is_array($res) || !isset($res['result'])) {
+        if (!is_array($res)) {
+            throw new MonthPayException('接口返回格式异常');
+        }
+
+        if ($action === 'commonRefund') {
+            if (!isset($res['response']) || !is_array($res['response']) || !isset($res['response']['ret_code'])) {
+                throw new MonthPayException('接口返回格式异常');
+            }
+
+            if ((string)$res['response']['ret_code'] !== '1') {
+                $code = (int)$res['response']['ret_code'];
+                throw new MonthPayException(
+                    $res['response']['ret_detail'] ?? '退款失败',
+                    $code,
+                    null,
+                    (string)$res['response']['ret_code']
+                );
+            }
+
+            $res['result'] = 0;
+            return $res;
+        }
+
+        if (!isset($res['result'])) {
             throw new MonthPayException('接口返回格式异常');
         }
 
